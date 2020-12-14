@@ -3,9 +3,20 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
+[[source]]
+name = "TestPyPI"
+url = "https://test.pypi.org/simple/"
+verify_ssl = false
+
+[packages]
+actfw-core = {version = "*", index = "TestPyPI"}  # TODO move this to setup.py
+
 [dev-packages]
-actfw = {editable = true, path = "."}
+actfw-raspberrypi = {editable = true, path = "."}
 # Packaging Python Projects
 setuptools = "*"
-wheel = "*"
 twine = "*"
+wheel = "*"
+
+[pipenv]
+allow_prereleases = true  # TODO remove
