@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import argparse
 from PIL import Image
-import actfw
-from actfw.vc4 import Display
-from actfw.task import Pipe, Consumer
+import actfw_core
+from actfw_core.task import Pipe, Consumer
+import actfw_raspberrypi
+from actfw_raspberrypi.vc4 import Display
 
 (CAPTURE_WIDTH, CAPTURE_HEIGHT) = (320, 240)  # capture image size
 (DISPLAY_WIDTH, DISPLAY_HEIGHT) = (640, 480)  # display area size
@@ -32,8 +33,8 @@ class Presenter(Consumer):
         rgb_image, gray_image = images
         histo = gray_image.histogram()
         self.cmd.update_image(rgb_image)  # update `Take Photo` image
-        actfw.notify([{'histogram': histo}])
-        actfw.heartbeat()
+        actfw_core.notify([{'histogram': histo}])
+        actfw_core.heartbeat()
         if self.preview is not None:
             gray_image = gray_image.convert('RGB')
             self.preview.blit(gray_image.tobytes())
@@ -43,17 +44,17 @@ class Presenter(Consumer):
 def main(args):
 
     # Actcast application
-    app = actfw.Application()
+    app = actfw_core.Application()
 
     # Load act setting
     settings = app.get_settings({'display': True})
 
     # CommandServer (for `Take Photo` command)
-    cmd = actfw.CommandServer()
+    cmd = actfw_core.CommandServer()
     app.register_task(cmd)
 
     # Capture task
-    cap = actfw.capture.V4LCameraCapture('/dev/video0', (CAPTURE_WIDTH, CAPTURE_HEIGHT), 30)
+    cap = actfw_raspberrypi.capture.V4LCameraCapture('/dev/video0', (CAPTURE_WIDTH, CAPTURE_HEIGHT), 30)
     capture_size = cap.capture_size()
     app.register_task(cap)
 
