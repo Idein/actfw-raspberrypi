@@ -4,7 +4,8 @@ from PIL import Image, ImageDraw, ImageFont
 from picamera import PiCamera
 import actfw_core
 from actfw_core.task import Consumer
-import actfw_raspberrypi
+from actfw_raspberrypi.capture import PiCameraCapture
+from actfw_raspberrypi.display import Display
 
 (CAPTURE_WIDTH, CAPTURE_HEIGHT) = (320, 240)  # capture image size
 (DISPLAY_WIDTH, DISPLAY_HEIGHT) = (640, 480)  # display area size
@@ -19,7 +20,7 @@ class Presenter(Consumer):
         self.cmd = cmd
         self.font = ImageFont.truetype(font='/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf', size=18)
         if self.settings['display']:
-            self.display = actfw_raspberrypi.Display(camera, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+            self.display = Display(camera, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
     def proc(self, frame):
         image = Image.frombuffer('RGB', (CAPTURE_WIDTH, CAPTURE_HEIGHT), frame.getvalue(), 'raw', 'RGB')
@@ -50,7 +51,7 @@ def main(args):
     app.register_task(cmd)
 
     # Capture task
-    cap = actfw_raspberrypi.capture.PiCameraCapture(camera, format='rgb', use_video_port=True)
+    cap = PiCameraCapture(camera, format='rgb', use_video_port=True)
     app.register_task(cap)
 
     # Presentation task
