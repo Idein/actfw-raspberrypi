@@ -1,6 +1,6 @@
 import io
 from queue import Full
-from .task import Producer
+from actfw_core.task import Producer
 from actfw_core.v4l2.video import Video, VideoPort, V4L2_PIX_FMT
 from actfw_core.capture import Frame
 import enum
