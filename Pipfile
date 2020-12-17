@@ -20,3 +20,6 @@ wheel = "*"
 
 [pipenv]
 allow_prereleases = true  # TODO remove
+
+[scripts]
+install-raspberrypi = "pip install picamera"
