@@ -19,6 +19,9 @@ nose2 = "*"
 setuptools = "*"
 twine = "*"
 wheel = "*"
+# Document
+sphinx = "*"
+sphinx-theme = "*"
 
 [pipenv]
 allow_prereleases = true  # TODO remove
