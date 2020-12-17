@@ -3,7 +3,7 @@ import argparse
 from PIL import Image
 import actfw_core
 from actfw_core.task import Pipe, Consumer
-import actfw_raspberrypi
+from actfw_core.capture import V4LCameraCapture
 from actfw_raspberrypi.vc4 import Display
 
 (CAPTURE_WIDTH, CAPTURE_HEIGHT) = (320, 240)  # capture image size
@@ -54,7 +54,7 @@ def main(args):
     app.register_task(cmd)
 
     # Capture task
-    cap = actfw_raspberrypi.capture.V4LCameraCapture('/dev/video0', (CAPTURE_WIDTH, CAPTURE_HEIGHT), 30)
+    cap = V4LCameraCapture('/dev/video0', (CAPTURE_WIDTH, CAPTURE_HEIGHT), 30)
     capture_size = cap.capture_size()
     app.register_task(cap)
 
