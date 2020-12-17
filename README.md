@@ -21,9 +21,10 @@ See [actfw-core](https://github.com/Idein/actfw-core) for basic usage.
 
 actfw-raspberrypi provides:
 
-* `actfw.capture.PiCameraCapture` : Generate CSI camera capture image
-* `actfw.display.Display` : Display using PiCamera Overlay
-* `actfw.vc4.display.Display` : Display using VideoCore IV
+* `actfw_raspberrypi.capture.PiCameraCapture` : Generate CSI camera capture image
+* `actfw_raspberrypi.Display` : Display using PiCamera Overlay
+* `actfw_raspberrypi.vc4.Display` : Display using VideoCore IV
+* `actfw_raspberrypi.vc4.Window` : Double buffered window
 
 ## Example
 
@@ -81,7 +82,13 @@ pip3 install pipenv
 pipenv install --dev -e .
 ```
 
-#### Running examples
+### Running tests
+
+```console
+pipenv run nose2 -v
+```
+
+### Running examples
 
 On a Raspberry Pi connected to HDMI display:
 

@@ -13,6 +13,8 @@ actfw-core = {version = "*", index = "TestPyPI"}  # TODO move this to setup.py
 
 [dev-packages]
 actfw-raspberrypi = {editable = true, path = "."}
+# Tests
+nose2 = "*"
 # Packaging Python Projects
 setuptools = "*"
 twine = "*"
