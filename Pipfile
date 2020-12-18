@@ -7,10 +7,12 @@ verify_ssl = true
 actfw-raspberrypi = {editable = true, path = "."}
 # Tests
 nose2 = "*"
+# Lint
+autopep8 = "*"
 # Packaging Python Projects
 setuptools = "*"
-twine = "*"
 wheel = "*"
+twine = "*"
 # Document
 sphinx = "*"
 sphinx-theme = "*"
