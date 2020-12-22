@@ -192,7 +192,7 @@ class Display(object):
         Get display information.
 
         Returns:
-            :class:`~actfw.vc4.display.DISPMANX_MODEINFO_T`: display information
+            :class:`~actfw_raspberrypi.vc4.display.DISPMANX_MODEINFO_T`: display information
         """
         self.info = DISPMANX_MODEINFO_T()
         result = _bcm_host.vc_dispmanx_display_get_info(self.handle, byref(self.info))
@@ -211,7 +211,7 @@ class Display(object):
             layer (int): layer
 
         Returns:
-            :class:`~actfw.vc4.display.Window`: window
+            :class:`~actfw_raspberrypi.vc4.display.Window`: window
         """
         return Window(self, dst, size, layer)
 
@@ -314,7 +314,7 @@ class Window(object):
         Swap window layer.
 
         Args:
-            window (:class:`~actfw.vc4.display.Window`): target window
+            window (:class:`~actfw_raspberrypi.vc4.display.Window`): target window
         """
         update = _bcm_host.vc_dispmanx_update_start(0)
         _bcm_host.vc_dispmanx_element_change_layer(update, self.element, window.layer)
