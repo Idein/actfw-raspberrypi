@@ -1,16 +1,16 @@
-.. actfw documentation master file, created by
-   sphinx-quickstart on Tue Jul  2 22:45:21 2019.
+.. actfw-raspberrypi documentation master file, created by
+   sphinx-quickstart on Tue Jan  8 13:13:19 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to actfw's documentation!
-=================================
+Welcome to actfw-raspberrypi's documentation!
+=============================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   actfw
+   actfw_raspberrypi
 
 Indices and tables
 ==================
