@@ -1,5 +1,2 @@
 from .display import Display
-
-from actfw_raspberrypi import _version
-
-__version__ = _version.__version__
+from ._version import __version__
