@@ -6,18 +6,18 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3 :: Only",
 ]
-description = "Core components of actfw, independent of specific devices"
+description = "actfw's additional components for RaspberryPi"
 keywords = ['actcast']
 license = "MIT"
-name = "actfw-core"
+name = "actfw-raspberrypi"
 readme = "README.md"
-repository = "https://github.com/Idein/actfw-core"
-version = "1.5.2"
+repository = "https://github.com/Idein/actfw-raspberrypi"
+version = "1.4.0"
 
 [tool.poetry.dependencies]
 python = "^3.6"
 
-Pillow = "^8.1.2"
+actfw-core = "^1.5.2"
 
 [tool.poetry.dev-dependencies]
 Sphinx = "^3.5.3"
