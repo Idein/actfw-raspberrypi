@@ -3,10 +3,9 @@ from ctypes.util import find_library
 
 
 class _libbcm_host(object):
-
     def __init__(self):
         self.lib = None
-        path = find_library('bcm_host')
+        path = find_library("bcm_host")
         if path is not None:
             self.lib = CDLL(path, use_errno=True)
 
@@ -88,7 +87,7 @@ DISPMANX_UPDATE_HANDLE_T = c_uint
 DISPMANX_ELEMENT_HANDLE_T = c_uint
 DISPMANX_RESOURCE_HANDLE_T = c_uint
 
-DISPMANX_PROTECTION_MAX = 0x0f
+DISPMANX_PROTECTION_MAX = 0x0F
 DISPMANX_PROTECTION_NONE = 0
 DISPMANX_PROTECTION_HDCP = 11
 
@@ -140,20 +139,20 @@ VC_IMAGE_MIRROR_ROT270 = TRANSFORM_TRANSPOSE | TRANSFORM_HFLIP | TRANSFORM_VFLIP
 
 class DISPMANX_MODEINFO_T(Structure):
     _fields_ = [
-        ('width', c_uint),
-        ('height', c_uint),
-        ('transform', DISPMANX_TRANSFORM_T),
-        ('input_format', DISPLAY_INPUT_FORMAT_T),
-        ('display_num', c_uint),
+        ("width", c_uint),
+        ("height", c_uint),
+        ("transform", DISPMANX_TRANSFORM_T),
+        ("input_format", DISPLAY_INPUT_FORMAT_T),
+        ("display_num", c_uint),
     ]
 
 
 class VC_RECT_T(Structure):
     _fields_ = [
-        ('x', c_uint),
-        ('y', c_uint),
-        ('width', c_uint),
-        ('height', c_uint),
+        ("x", c_uint),
+        ("y", c_uint),
+        ("width", c_uint),
+        ("height", c_uint),
     ]
 
 
@@ -169,10 +168,10 @@ DISPMANX_FLAGS_ALPHA_DISCARD_LOWER_LAYERS = 1 << 18
 
 class VC_DISPMANX_ALPHA_T(Structure):
     _fields_ = [
-        ('flags', DISPMANX_FLAGS_ALPHA_T),
-        ('opacity', c_uint),
-        ('mask', DISPMANX_RESOURCE_HANDLE_T),
-        ('height', c_uint),
+        ("flags", DISPMANX_FLAGS_ALPHA_T),
+        ("opacity", c_uint),
+        ("mask", DISPMANX_RESOURCE_HANDLE_T),
+        ("height", c_uint),
     ]
 
 
@@ -272,16 +271,18 @@ class Window(object):
         alpha.opacity = 255
         alpha.mask = 0
 
-        self.element = _bcm_host.vc_dispmanx_element_add(update,
-                                                         self.display.handle,
-                                                         self.layer,
-                                                         byref(dst_rect),
-                                                         self.resources[1],
-                                                         byref(src_rect),
-                                                         DISPMANX_PROTECTION_NONE,
-                                                         byref(alpha),
-                                                         None,
-                                                         VC_IMAGE_ROT0)
+        self.element = _bcm_host.vc_dispmanx_element_add(
+            update,
+            self.display.handle,
+            self.layer,
+            byref(dst_rect),
+            self.resources[1],
+            byref(src_rect),
+            DISPMANX_PROTECTION_NONE,
+            byref(alpha),
+            None,
+            VC_IMAGE_ROT0,
+        )
         if self.element == 0:
             raise RuntimeError("Failed to add element.")
 
@@ -294,7 +295,7 @@ class Window(object):
         Args:
             rgb ((int, int, int)): clear color
         """
-        color = b''.join(map(lambda x: x.to_bytes(1, 'little'), rgb))
+        color = b"".join(map(lambda x: x.to_bytes(1, "little"), rgb))
         self.blit(color * self.size[0] * self.size[1])
 
     def set_layer(self, layer):
@@ -333,8 +334,7 @@ class Window(object):
         _bcm_host.vc_dispmanx_rect_set(byref(src_rect), 0, 0, self.size[0], self.size[1])
         pitch = (self.size[0] * 3 + 32 - 1) // 32 * 32
         buf = c_char_p(image)
-        result = _bcm_host.vc_dispmanx_resource_write_data(
-            self.resources[0], self.format, c_int(pitch), buf, byref(src_rect))
+        result = _bcm_host.vc_dispmanx_resource_write_data(self.resources[0], self.format, c_int(pitch), buf, byref(src_rect))
         if result != 0:
             raise RuntimeError("Failed to blit.: {}".format(result))
 

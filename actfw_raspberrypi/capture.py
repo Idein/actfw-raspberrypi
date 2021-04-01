@@ -1,9 +1,10 @@
+import enum
 import io
 from queue import Full
-from actfw_core.task import Producer
-from actfw_core.v4l2.video import Video, VideoPort, V4L2_PIX_FMT
+
 from actfw_core.capture import Frame
-import enum
+from actfw_core.task import Producer
+from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort
 
 
 class PiCameraCapture(Producer):
@@ -25,6 +26,7 @@ class PiCameraCapture(Producer):
 
     def run(self):
         """Run producer activity"""
+
         def generator():
             stream = io.BytesIO()
             while self._is_running():
@@ -38,7 +40,7 @@ class PiCameraCapture(Producer):
                             updated += 1
                         else:
                             break
-                    self.frames = self.frames[len(self.frames) - updated:]
+                    self.frames = self.frames[len(self.frames) - updated :]
                     frame = Frame(value)
                     if self._outlet(frame):
                         self.frames.append(frame)
@@ -46,6 +48,7 @@ class PiCameraCapture(Producer):
                     stream.truncate()
                 except GeneratorExit:
                     break
+
         self.camera.capture_sequence(generator(), *self.args, **self.kwargs)
 
     def _outlet(self, o):
