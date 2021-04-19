@@ -4,6 +4,7 @@ from queue import Full
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
+from actfw_core.util.pad import _PadDiscardingOld
 from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort
 
 
@@ -22,7 +23,6 @@ class PiCameraCapture(Producer):
         self.camera = camera
         self.args = args
         self.kwargs = kwargs
-        self.frames = []
 
     def run(self):
         """Run producer activity"""
@@ -34,16 +34,8 @@ class PiCameraCapture(Producer):
                     yield stream
                     stream.seek(0)
                     value = stream.getvalue()
-                    updated = 0
-                    for frame in reversed(self.frames):
-                        if frame._update(value):
-                            updated += 1
-                        else:
-                            break
-                    self.frames = self.frames[len(self.frames) - updated :]
                     frame = Frame(value)
-                    if self._outlet(frame):
-                        self.frames.append(frame)
+                    self._outlet(frame)
                     stream.seek(0)
                     stream.truncate()
                 except GeneratorExit:
@@ -63,3 +55,6 @@ class PiCameraCapture(Producer):
             except:
                 traceback.print_exc()
         return False
+
+    def _new_pad(self):  # -> _PadBase[T_OUT]
+        return _PadDiscardingOld()
