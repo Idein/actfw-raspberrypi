@@ -1,11 +1,13 @@
-from nose2.tools import params
+import pytest
 
 
-@params(
-    {"from": "actfw_raspberrypi", "import": "Display"},
-    {"from": "actfw_raspberrypi.capture", "import": "PiCameraCapture"},
-    {"from": "actfw_raspberrypi.vc4", "import": "Display"},
-    {"from": "actfw_raspberrypi.vc4", "import": "Window"},
+@pytest.mark.parametrize(
+    "from_, import_",
+    [
+        ("actfw_raspberrypi", "Display"),
+        ("actfw_raspberrypi.capture", "PiCameraCapture"),
+        ("actfw_raspberrypi.vc4", "Display, Window"),
+    ],
 )
-def test_import_actfw_raspberrypi(param):
-    exec(f"""from {param['from']} import {param['import']}""")
+def test_import_actfw_raspberrypi(from_, import_):
+    exec(f"""from {from_} import {import_}""")
