@@ -17,7 +17,7 @@ version = "1.4.0"
 [tool.poetry.dependencies]
 python = "^3.6"
 
-actfw-core = "^1.5.2"
+actfw-core = "2.0.0a0"
 
 [tool.poetry.dev-dependencies]
 Sphinx = "^3.5.3"
