@@ -18,7 +18,7 @@ class PiCameraCapture(Producer):
             camera (:class:`~picamera.PiCamera`): picamera object
 
         """
-        super(PiCameraCapture, self).__init__()
+        super().__init__()
         self.camera = camera
         self.args = args
         self.kwargs = kwargs

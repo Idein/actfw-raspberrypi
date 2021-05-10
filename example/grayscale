@@ -14,7 +14,7 @@ from actfw_raspberrypi.display import Display
 class Converter(Pipe):
 
     def __init__(self):
-        super(Converter, self).__init__()
+        super().__init__()
 
     def proc(self, frame):
         rgb_image = Image.frombuffer('RGB', (CAPTURE_WIDTH, CAPTURE_HEIGHT), frame.getvalue(), 'raw', 'RGB')
@@ -25,7 +25,7 @@ class Converter(Pipe):
 class Presenter(Consumer):
 
     def __init__(self, settings, camera, cmd):
-        super(Presenter, self).__init__()
+        super().__init__()
         self.settings = settings
         self.camera = camera
         self.cmd = cmd

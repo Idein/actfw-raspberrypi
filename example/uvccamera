@@ -13,7 +13,7 @@ from actfw_raspberrypi.vc4 import Display
 class Converter(Pipe):
 
     def __init__(self, capture_size):
-        super(Converter, self).__init__()
+        super().__init__()
         self.capture_size = capture_size
 
     def proc(self, frame):
@@ -25,7 +25,7 @@ class Converter(Pipe):
 class Presenter(Consumer):
 
     def __init__(self, preview, cmd):
-        super(Presenter, self).__init__()
+        super().__init__()
         self.preview = preview
         self.cmd = cmd
 
