@@ -4,6 +4,7 @@ from queue import Full
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
+from actfw_core.util.pad import _PadBase, _PadDiscardingOld
 
 # reason: actfw-core/actfw_core/v4l2/video.py is type ignored.
 from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort  # type: ignore
@@ -24,7 +25,9 @@ class PiCameraCapture(Producer[Frame[bytes]]):
         self.camera = camera
         self.args = args
         self.kwargs = kwargs
-        self.frames = []
+
+    def _new_pad(self) -> _PadBase[Frame[bytes]]:
+        return _PadDiscardingOld()
 
     def run(self):
         """Run producer activity"""
@@ -36,16 +39,8 @@ class PiCameraCapture(Producer[Frame[bytes]]):
                     yield stream
                     stream.seek(0)
                     value = stream.getvalue()
-                    updated = 0
-                    for frame in reversed(self.frames):
-                        if frame._update(value):
-                            updated += 1
-                        else:
-                            break
-                    self.frames = self.frames[len(self.frames) - updated :]
                     frame = Frame(value)
-                    if self._outlet(frame):
-                        self.frames.append(frame)
+                    self._outlet(frame)
                     stream.seek(0)
                     stream.truncate()
                 except GeneratorExit:
