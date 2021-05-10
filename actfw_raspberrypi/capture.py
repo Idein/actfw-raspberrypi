@@ -4,10 +4,12 @@ from queue import Full
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
-from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort
+
+# reason: actfw-core/actfw_core/v4l2/video.py is type ignored.
+from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort  # type: ignore
 
 
-class PiCameraCapture(Producer):
+class PiCameraCapture(Producer[Frame[bytes]]):
 
     """Captured Frame Producer for Raspberry Pi Camera Module"""
 
