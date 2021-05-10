@@ -47,16 +47,3 @@ class PiCameraCapture(Producer[Frame[bytes]]):
                     break
 
         self.camera.capture_sequence(generator(), *self.args, **self.kwargs)
-
-    def _outlet(self, o):
-        length = len(self.out_queues)
-        while self._is_running():
-            try:
-                self.out_queues[self.out_queue_id].put(o, block=False)
-                self.out_queue_id = (self.out_queue_id + 1) % length
-                return True
-            except Full:
-                return False
-            except:
-                traceback.print_exc()
-        return False
