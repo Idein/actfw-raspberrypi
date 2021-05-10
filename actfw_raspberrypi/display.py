@@ -1,11 +1,24 @@
+from typing import Optional, Tuple
+
 from .edid import EDID
 
 
 class Display:
+    size: Tuple[int, int]
+    preferred_size: Tuple[int, int]
+    scale: float
+    ofs_w: float
+    ofs_h: float
+    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera
+    layer: Optional["picamera.PiOverlayRenderer"]  # type: ignore  # reason: can't depend on picamera
 
     """Display using PiCamera Overlay"""
 
-    def __init__(self, camera, size):
+    def __init__(
+        self,
+        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera
+        size: Tuple[int, int],
+    ) -> None:
         """
 
         Args:
@@ -23,7 +36,13 @@ class Display:
         self.camera = camera
         self.layer = None
 
-    def update(self, dst_rect, src_buf, src_size, src_format):
+    def update(
+        self,
+        dst_rect: Tuple[int, int, int, int],
+        src_buf: bytes,
+        src_size: Tuple[int, int],
+        src_format: str,
+    ) -> None:
         """
 
         Update display.

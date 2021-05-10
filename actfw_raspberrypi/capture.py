@@ -1,6 +1,7 @@
 import enum
 import io
 from queue import Full
+from typing import Any, Generator
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
@@ -11,10 +12,18 @@ from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort  # type: ignore
 
 
 class PiCameraCapture(Producer[Frame[bytes]]):
+    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera
+    args: Any
+    kwargs: Any
 
     """Captured Frame Producer for Raspberry Pi Camera Module"""
 
-    def __init__(self, camera, *args, **kwargs):
+    def __init__(
+        self,
+        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         """
 
         Args:
@@ -29,10 +38,10 @@ class PiCameraCapture(Producer[Frame[bytes]]):
     def _new_pad(self) -> _PadBase[Frame[bytes]]:
         return _PadDiscardingOld()
 
-    def run(self):
+    def run(self) -> None:
         """Run producer activity"""
 
-        def generator():
+        def generator() -> Generator[io.BytesIO, None, None]:
             stream = io.BytesIO()
             while self._is_running():
                 try:
