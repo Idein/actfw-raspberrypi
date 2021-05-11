@@ -14,7 +14,7 @@ from actfw_raspberrypi.display import Display
 class Converter(Pipe):
 
     def __init__(self, converter_id):
-        super(Converter, self).__init__()
+        super().__init__()
         self.converter_id = converter_id
 
     def proc(self, frame):
@@ -26,7 +26,7 @@ class Converter(Pipe):
 class Presenter(Consumer):
 
     def __init__(self, settings, camera, cmd):
-        super(Presenter, self).__init__()
+        super().__init__()
         self.settings = settings
         self.camera = camera
         self.cmd = cmd
