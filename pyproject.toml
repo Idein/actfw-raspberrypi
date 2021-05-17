@@ -26,6 +26,11 @@ pysen = {version = "^0.9.1", extras = ["lint"]}
 pytest = "^6.2.3"
 sphinx-theme = "^1.0"
 
+[tool.poetry.urls]
+"Repository" = "https://github.com/Idein/actfw-raspberrypi"
+"Documentation" = "https://idein.github.io/actfw-raspberrypi/latest/"
+"Changelog" = "https://github.com/Idein/actfw-raspberrypi/blob/master/CHANGELOG.md"
+
 [tool.pysen.lint]
 enable_black = true
 enable_flake8 = true
