@@ -1,1 +1,1 @@
-from .display import Display
+from .display import Display  # noqa F401
