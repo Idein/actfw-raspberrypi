@@ -18,6 +18,7 @@ version = "1.4.0"
 python = "^3.6"
 
 actfw-core = "2.0.0a0"
+# We postpone adding picamera because https://github.com/waveform80/picamera/pull/405 is not in the latest picamera (1.13) yet.
 
 [tool.poetry.dev-dependencies]
 Sphinx = "^3.5.3"
