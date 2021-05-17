@@ -1,18 +1,13 @@
-import enum
 import io
-from queue import Full
 from typing import Any, Generator
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
 from actfw_core.util.pad import _PadBase, _PadDiscardingOld
 
-# reason: actfw-core/actfw_core/v4l2/video.py is type ignored.
-from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort  # type: ignore
-
 
 class PiCameraCapture(Producer[Frame[bytes]]):
-    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera
+    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera  # noqa F821
     args: Any
     kwargs: Any
 
@@ -20,7 +15,7 @@ class PiCameraCapture(Producer[Frame[bytes]]):
 
     def __init__(
         self,
-        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera
+        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera  # noqa F821
         *args: Any,
         **kwargs: Any,
     ) -> None:

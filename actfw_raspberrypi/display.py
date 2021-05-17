@@ -9,14 +9,14 @@ class Display:
     scale: float
     ofs_w: float
     ofs_h: float
-    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera
-    layer: Optional["picamera.PiOverlayRenderer"]  # type: ignore  # reason: can't depend on picamera
+    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera  # noqa F821
+    layer: Optional["picamera.PiOverlayRenderer"]  # type: ignore  # reason: can't depend on picamera  # noqa F821
 
     """Display using PiCamera Overlay"""
 
     def __init__(
         self,
-        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera
+        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera  # noqa F821
         size: Tuple[int, int],
     ) -> None:
         """
