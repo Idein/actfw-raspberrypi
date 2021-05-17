@@ -1,17 +1,29 @@
 import enum
 import io
 from queue import Full
+from typing import Any, Generator
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
-from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort
+from actfw_core.util.pad import _PadBase, _PadDiscardingOld
+
+# reason: actfw-core/actfw_core/v4l2/video.py is type ignored.
+from actfw_core.v4l2.video import V4L2_PIX_FMT, Video, VideoPort  # type: ignore
 
 
-class PiCameraCapture(Producer):
+class PiCameraCapture(Producer[Frame[bytes]]):
+    camera: "picamera.PiCamera"  # type: ignore  # reason: can't depend on picamera
+    args: Any
+    kwargs: Any
 
     """Captured Frame Producer for Raspberry Pi Camera Module"""
 
-    def __init__(self, camera, *args, **kwargs):
+    def __init__(
+        self,
+        camera: "picamera.PiCamera",  # type: ignore  # reason: can't depend on picamera
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         """
 
         Args:
@@ -22,44 +34,25 @@ class PiCameraCapture(Producer):
         self.camera = camera
         self.args = args
         self.kwargs = kwargs
-        self.frames = []
 
-    def run(self):
+    def _new_pad(self) -> _PadBase[Frame[bytes]]:
+        return _PadDiscardingOld()
+
+    def run(self) -> None:
         """Run producer activity"""
 
-        def generator():
+        def generator() -> Generator[io.BytesIO, None, None]:
             stream = io.BytesIO()
             while self._is_running():
                 try:
                     yield stream
                     stream.seek(0)
                     value = stream.getvalue()
-                    updated = 0
-                    for frame in reversed(self.frames):
-                        if frame._update(value):
-                            updated += 1
-                        else:
-                            break
-                    self.frames = self.frames[len(self.frames) - updated :]
                     frame = Frame(value)
-                    if self._outlet(frame):
-                        self.frames.append(frame)
+                    self._outlet(frame)
                     stream.seek(0)
                     stream.truncate()
                 except GeneratorExit:
                     break
 
         self.camera.capture_sequence(generator(), *self.args, **self.kwargs)
-
-    def _outlet(self, o):
-        length = len(self.out_queues)
-        while self._is_running():
-            try:
-                self.out_queues[self.out_queue_id].put(o, block=False)
-                self.out_queue_id = (self.out_queue_id + 1) % length
-                return True
-            except Full:
-                return False
-            except:
-                traceback.print_exc()
-        return False

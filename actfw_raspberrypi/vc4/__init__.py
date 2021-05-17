@@ -1,1 +1,1 @@
-from .display import Display, Window
+from .display import Display, Window  # type: ignore

@@ -1,3 +1,5 @@
+# type: ignore
+
 from ctypes import *
 from ctypes.util import find_library
 

@@ -1,17 +1,19 @@
 import re
 import subprocess
+from typing import Tuple
 
 
 class EDID:
+    edid: str
 
     """Extended Display Information Data"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         subprocess.run("/opt/vc/bin/tvservice -d /tmp/edid".split(), stdout=subprocess.DEVNULL)
         p = subprocess.run("/opt/vc/bin/edidparser /tmp/edid".split(), stdout=subprocess.PIPE)
         self.edid = p.stdout.decode("utf-8")
 
-    def prefferd_mode(self):
+    def prefferd_mode(self) -> Tuple[int, int]:
         """Preffered Display Resolution.
 
         Returns:
