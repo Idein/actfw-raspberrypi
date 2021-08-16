@@ -22,6 +22,7 @@ actfw-core = "2.0.0"
 
 [tool.poetry.dev-dependencies]
 Sphinx = "^3.5.3"
+pyproject-indirect-import-detector = "^0.1.1"
 pysen = {version = "^0.9.1", extras = ["lint"]}
 pytest = "^6.2.3"
 sphinx-theme = "^1.0"
