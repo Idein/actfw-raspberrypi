@@ -1,12 +1,13 @@
 [[package]]
 name = "actfw-core"
-version = "2.0.0"
+version = "2.1.1"
 description = "Core components of actfw, independent of specific devices"
 category = "main"
 optional = false
 python-versions = ">=3.6,<4.0"
 
 [package.dependencies]
+dataclasses = {version = ">=0.8,<0.9", markers = "python_version < \"3.7\""}
 Pillow = ">=5,<6"
 
 [[package]]
@@ -149,7 +150,7 @@ dev = ["pytest (>=5)", "pytest-cov", "coveralls", "black", "mypy", "pylint"]
 name = "dataclasses"
 version = "0.8"
 description = "A backport of the dataclasses module for Python 3.6"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6, <3.7"
 
@@ -717,12 +718,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "e5721589e45670e0f23aff9ff36de138440e69f355b179713831ea7649eb8f54"
+content-hash = "96717fc2ddb84b97532fd2d56646c4e446a288ecbefccdceb057315dc9b356e8"
 
 [metadata.files]
 actfw-core = [
-    {file = "actfw-core-2.0.0.tar.gz", hash = "sha256:25ab597ab0c492be90ba1fa58ffed6b974243c6fce7731bab06e299ddcef2bd2"},
-    {file = "actfw_core-2.0.0-py3-none-any.whl", hash = "sha256:85d290fa4986f6d7f3205866aa25a11de96d82d3c2a6e156fce098d3928e827f"},
+    {file = "actfw-core-2.1.1.tar.gz", hash = "sha256:dc450dd0f220451aa462008f2395dc87878f98c50485bf5e82cd8d40fd391327"},
+    {file = "actfw_core-2.1.1-py3-none-any.whl", hash = "sha256:68c70ad62b684761187e740f97f2e21a2f56edc4e72523d8748c5cf76f3eae63"},
 ]
 alabaster = [
     {file = "alabaster-0.7.12-py2.py3-none-any.whl", hash = "sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359"},
