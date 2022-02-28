@@ -1,4 +1,5 @@
 import io
+import warnings
 from typing import Any, Generator
 
 from actfw_core.capture import Frame
@@ -25,6 +26,14 @@ class PiCameraCapture(Producer[Frame[bytes]]):
             camera (:class:`~picamera.PiCamera`): picamera object
 
         """
+        if is_buster():
+            warnings.warn(
+                "PiCameraCapture do not work in bullseye and PiCameraCapture will be deprecated soon.",
+                PendingDeprecationWarning,
+            )
+        elif is_bullseye():
+            raise RuntimeError("PiCameraCapture do not work in bullseye.")
+
         super().__init__()
         self.camera = camera
         self.args = args
@@ -51,3 +60,19 @@ class PiCameraCapture(Producer[Frame[bytes]]):
                     break
 
         self.camera.capture_sequence(generator(), *self.args, **self.kwargs)
+
+
+def get_debian_version() -> int:
+    with open("/etc/debian_version", "r") as f:
+        raw_version = f.readline()
+    return int(float(raw_version.rstrip()))
+
+
+def is_buster() -> bool:
+    version = get_debian_version()
+    return version == 10
+
+
+def is_bullseye() -> bool:
+    version = get_debian_version()
+    return version == 11
