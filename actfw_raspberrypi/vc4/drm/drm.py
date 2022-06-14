@@ -1,17 +1,20 @@
+# type: ignore
+# flake8: noqa
+
+import mmap
+import os
 from ctypes import *
 from ctypes.util import find_library
 from typing import List
-import os
-import mmap
 
-DRM_MODE_OBJECT_CRTC = 0xcccccccc
-DRM_MODE_OBJECT_CONNECTOR = 0xc0c0c0c0
-DRM_MODE_OBJECT_ENCODER = 0xe0e0e0e0
-DRM_MODE_OBJECT_MODE = 0xdededede
-DRM_MODE_OBJECT_PROPERTY = 0xb0b0b0b0
-DRM_MODE_OBJECT_FB = 0xfbfbfbfb
-DRM_MODE_OBJECT_BLOB = 0xbbbbbbbb
-DRM_MODE_OBJECT_PLANE = 0xeeeeeeee
+DRM_MODE_OBJECT_CRTC = 0xCCCCCCCC
+DRM_MODE_OBJECT_CONNECTOR = 0xC0C0C0C0
+DRM_MODE_OBJECT_ENCODER = 0xE0E0E0E0
+DRM_MODE_OBJECT_MODE = 0xDEDEDEDE
+DRM_MODE_OBJECT_PROPERTY = 0xB0B0B0B0
+DRM_MODE_OBJECT_FB = 0xFBFBFBFB
+DRM_MODE_OBJECT_BLOB = 0xBBBBBBBB
+DRM_MODE_OBJECT_PLANE = 0xEEEEEEEE
 DRM_MODE_OBJECT_ANY = 0
 
 DRM_FORMAT_RGB888 = 0x34324752
@@ -26,9 +29,9 @@ DRM_DISPLAY_MODE_LEN = 32
 
 DRM_CAP_DUMB_BUFFER = 0x1
 
-DRM_IOCTL_MODE_CREATE_DUMB = 0xc02064b2
-DRM_IOCTL_MODE_MAP_DUMB = 0xc01064b3
-DRM_IOCTL_MODE_DESTROY_DUMB = 0xc00464b4
+DRM_IOCTL_MODE_CREATE_DUMB = 0xC02064B2
+DRM_IOCTL_MODE_MAP_DUMB = 0xC01064B3
+DRM_IOCTL_MODE_DESTROY_DUMB = 0xC00464B4
 
 DRM_MODE_CONNECTED = 1
 DRM_MODE_DISCONNECTED = 2
@@ -59,60 +62,60 @@ DRM_MODE_CONNECTOR_eDP = 14
 DRM_MODE_CONNECTOR_VIRTUAL = 15
 DRM_MODE_CONNECTOR_DSI = 16
 
+
 class DRMModePropertyEnum(Structure):
     """
-      struct drm_mode_property_enum {
-          __u64 value;
-          char name[DRM_PROP_NAME_LEN];
-      };
+    struct drm_mode_property_enum {
+        __u64 value;
+        char name[DRM_PROP_NAME_LEN];
+    };
     """
-    _fields_ = [
-        ('value', c_uint64),
-        ('name', c_char * DRM_PROP_NAME_LEN)
-    ]
+
+    _fields_ = [("value", c_uint64), ("name", c_char * DRM_PROP_NAME_LEN)]
+
 
 class DRMModeProperty(Structure):
     """
-      typedef struct _drmModeProperty {
-          uint32_t prop_id;
-          uint32_t flags;
-          char name[DRM_PROP_NAME_LEN];
-          int count_values;
-          uint64_t *values; /* store the blob lengths */
-          int count_enums;
-          struct drm_mode_property_enum *enums;
-          int count_blobs;
-          uint32_t *blob_ids; /* store the blob IDs */
-      } drmModePropertyRes, *drmModePropertyPtr;
+    typedef struct _drmModeProperty {
+        uint32_t prop_id;
+        uint32_t flags;
+        char name[DRM_PROP_NAME_LEN];
+        int count_values;
+        uint64_t *values; /* store the blob lengths */
+        int count_enums;
+        struct drm_mode_property_enum *enums;
+        int count_blobs;
+        uint32_t *blob_ids; /* store the blob IDs */
+    } drmModePropertyRes, *drmModePropertyPtr;
     """
+
     _fields_ = [
-        ('prop_id', c_uint32),
-        ('flags', c_uint32),
-        ('name', c_char * DRM_PROP_NAME_LEN),
-        ('count_values', c_int),
-        ('values', POINTER(c_uint64)),
-        ('count_enums', c_int),
-        ('enums', POINTER(DRMModePropertyEnum)),
-        ('count_blobs', c_int),
-        ('blob_ids', POINTER(c_uint32))
+        ("prop_id", c_uint32),
+        ("flags", c_uint32),
+        ("name", c_char * DRM_PROP_NAME_LEN),
+        ("count_values", c_int),
+        ("values", POINTER(c_uint64)),
+        ("count_enums", c_int),
+        ("enums", POINTER(DRMModePropertyEnum)),
+        ("count_blobs", c_int),
+        ("blob_ids", POINTER(c_uint32)),
     ]
+
 
 class DRMModeObjectProperties(Structure):
     """
-      typedef struct _drmModeObjectProperties {
-          uint32_t count_props;
-          uint32_t *props;
-          uint64_t *prop_values;
-      } drmModeObjectProperties, *drmModeObjectPropertiesPtr;
+    typedef struct _drmModeObjectProperties {
+        uint32_t count_props;
+        uint32_t *props;
+        uint64_t *prop_values;
+    } drmModeObjectProperties, *drmModeObjectPropertiesPtr;
     """
-    _fields_ = [
-        ('count_props', c_uint32),
-        ('props', POINTER(c_uint32)),
-        ('prop_values', POINTER(c_uint64))
-    ]
+
+    _fields_ = [("count_props", c_uint32), ("props", POINTER(c_uint32)), ("prop_values", POINTER(c_uint64))]
+
 
 class DRMModeResource(Structure):
-  """
+    """
     typedef struct _drmModeRes {
             int count_fbs;
             uint32_t *fbs;
@@ -125,22 +128,58 @@ class DRMModeResource(Structure):
             uint32_t min_width, max_width;
             uint32_t min_height, max_height;
     } drmModeRes, *drmModeResPtr;
-  """
-  _fields_ = [
-      ('count_fbs', c_int),
-      ('fbs', POINTER(c_uint32)),
-      ('count_crtcs', c_int),
-      ('_crtcs', POINTER(c_uint32)),
-      ('count_connectors', c_int),
-      ('_connectors', POINTER(c_uint32)),
-      ('count_encoders', c_int),
-      ('encoders', POINTER(c_uint32)),
-      ('min_width', c_uint32), ('max_width', c_uint32),
-      ('min_height', c_uint32), ('max_height', c_uint32),
-  ]
+    """
+
+    _fields_ = [
+        ("count_fbs", c_int),
+        ("fbs", POINTER(c_uint32)),
+        ("count_crtcs", c_int),
+        ("_crtcs", POINTER(c_uint32)),
+        ("count_connectors", c_int),
+        ("_connectors", POINTER(c_uint32)),
+        ("count_encoders", c_int),
+        ("encoders", POINTER(c_uint32)),
+        ("min_width", c_uint32),
+        ("max_width", c_uint32),
+        ("min_height", c_uint32),
+        ("max_height", c_uint32),
+    ]
+
+
+class DRMModeModeInfo(Structure):
+    """
+    typedef struct _drmModeModeInfo {
+            uint32_t clock;
+            uint16_t hdisplay, hsync_start, hsync_end, htotal, hskew;
+            uint16_t vdisplay, vsync_start, vsync_end, vtotal, vscan;
+            uint32_t vrefresh;
+            uint32_t flags;
+            uint32_t type;
+            char name[DRM_DISPLAY_MODE_LEN];
+    } drmModeModeInfo, *drmModeModeInfoPtr;
+    """
+
+    _fields_ = [
+        ("clock", c_uint32),
+        ("hdisplay", c_uint16),
+        ("hsync_start", c_uint16),
+        ("hsync_end", c_uint16),
+        ("htotal", c_uint16),
+        ("hskew", c_uint16),
+        ("vdisplay", c_uint16),
+        ("vsync_start", c_uint16),
+        ("vsync_end", c_uint16),
+        ("vtotal", c_uint16),
+        ("vscan", c_uint16),
+        ("vrefresh", c_uint32),
+        ("flags", c_uint32),
+        ("type", c_uint32),
+        ("name", c_char * DRM_DISPLAY_MODE_LEN),
+    ]
+
 
 class DRMModeConnector(Structure):
-  """
+    """
     typedef struct _drmModeConnector {
             uint32_t connector_id;
             uint32_t encoder_id; /**< Encoder currently connected to */
@@ -157,26 +196,29 @@ class DRMModeConnector(Structure):
             int count_encoders;
             uint32_t *encoders; /**< List of encoder ids */
     } drmModeConnector, *drmModeConnectorPtr;
-  """
-  _fields_ = [
-      ('connector_id', c_uint32),
-      ('encoder_id', c_uint32),
-      ('connector_type', c_uint32),
-      ('connector_type_id', c_uint32),
-      ('connection', c_uint),
-      ('mmWidth', c_uint32), ('mmHeight', c_uint32),
-      ('subpixel', c_uint),
-      ('count_modes', c_int),
-      ('modes', POINTER(DRMModeModeInfo)),
-      ('count_props', c_int),
-      ('props', POINTER(c_uint32)),
-      ('prop_values', POINTER(c_uint64)),
-      ('count_encoders', c_int),
-      ('encoders', POINTER(c_uint32)),
-  ]
+    """
+
+    _fields_ = [
+        ("connector_id", c_uint32),
+        ("encoder_id", c_uint32),
+        ("connector_type", c_uint32),
+        ("connector_type_id", c_uint32),
+        ("connection", c_uint),
+        ("mmWidth", c_uint32),
+        ("mmHeight", c_uint32),
+        ("subpixel", c_uint),
+        ("count_modes", c_int),
+        ("modes", POINTER(DRMModeModeInfo)),
+        ("count_props", c_int),
+        ("props", POINTER(c_uint32)),
+        ("prop_values", POINTER(c_uint64)),
+        ("count_encoders", c_int),
+        ("encoders", POINTER(c_uint32)),
+    ]
+
 
 class DRMModeEncoder(Structure):
-  """
+    """
     typedef struct _drmModeEncoder {
             uint32_t encoder_id;
             uint32_t encoder_type;
@@ -184,43 +226,19 @@ class DRMModeEncoder(Structure):
             uint32_t possible_crtcs;
             uint32_t possible_clones;
     } drmModeEncoder, *drmModeEncoderPtr;
-  """
-  _fields_ = [
-      ('encoder_id', c_uint32),
-      ('encoder_type', c_uint32),
-      ('crtc_id', c_uint32),
-      ('possible_crtcs', c_uint32),
-      ('possible_clones', c_uint32),
-  ]
+    """
 
-class DRMModeModeInfo(Structure):
-  """
-    typedef struct _drmModeModeInfo {
-            uint32_t clock;
-            uint16_t hdisplay, hsync_start, hsync_end, htotal, hskew;
-            uint16_t vdisplay, vsync_start, vsync_end, vtotal, vscan;
-            uint32_t vrefresh;
-            uint32_t flags;
-            uint32_t type;
-            char name[DRM_DISPLAY_MODE_LEN];
-    } drmModeModeInfo, *drmModeModeInfoPtr;
-  """
-  _fields_ = [
-      ('clock', c_uint32),
-      ('hdisplay', c_uint16), ('hsync_start', c_uint16),
-      ('hsync_end', c_uint16), ('htotal', c_uint16),
-      ('hskew', c_uint16),
-      ('vdisplay', c_uint16), ('vsync_start', c_uint16),
-      ('vsync_end', c_uint16), ('vtotal', c_uint16),
-      ('vscan', c_uint16),
-      ('vrefresh', c_uint32),
-      ('flags', c_uint32),
-      ('type', c_uint32),
-      ('name', c_char * DRM_DISPLAY_MODE_LEN),
-  ]
+    _fields_ = [
+        ("encoder_id", c_uint32),
+        ("encoder_type", c_uint32),
+        ("crtc_id", c_uint32),
+        ("possible_crtcs", c_uint32),
+        ("possible_clones", c_uint32),
+    ]
+
 
 class DRMModeCrtc(Structure):
-  """
+    """
     typedef struct _drmModeCrtc {
             uint32_t crtc_id;
             uint32_t buffer_id; /**< FB id to connect to 0 = disconnect */
@@ -230,59 +248,64 @@ class DRMModeCrtc(Structure):
             drmModeModeInfo mode;
             int gamma_size; /**< Number of gamma stops */
     } drmModeCrtc, *drmModeCrtcPtr;
-  """
-  _fields_ = [
-      ('crtc_id', c_uint32),
-      ('buffer_id', c_uint32),
-      ('x', c_uint32), ('y', c_uint32),
-      ('width', c_uint32), ('height', c_uint32),
-      ('mode_valid', c_int),
-      ('mode', DRMModeModeInfo),
-      ('gamma_size', c_int),
-  ]
+    """
+
+    _fields_ = [
+        ("crtc_id", c_uint32),
+        ("buffer_id", c_uint32),
+        ("x", c_uint32),
+        ("y", c_uint32),
+        ("width", c_uint32),
+        ("height", c_uint32),
+        ("mode_valid", c_int),
+        ("mode", DRMModeModeInfo),
+        ("gamma_size", c_int),
+    ]
+
 
 class DRMModePlaneRes(Structure):
     """
-      typedef struct _drmModePlaneRes {
-          uint32_t count_planes;
-          uint32_t *planes;
-      } drmModePlaneRes, *drmModePlaneResPtr;
+    typedef struct _drmModePlaneRes {
+        uint32_t count_planes;
+        uint32_t *planes;
+    } drmModePlaneRes, *drmModePlaneResPtr;
     """
-    _fields_ = [
-        ('count_planes', c_uint32),
-        ('planes', POINTER(c_uint32))
-    ]
+
+    _fields_ = [("count_planes", c_uint32), ("planes", POINTER(c_uint32))]
+
 
 class DRMModePlane(Structure):
     """
-      typedef struct _drmModePlane {
-          uint32_t count_formats;
-          uint32_t *formats;
-          uint32_t plane_id;
+    typedef struct _drmModePlane {
+        uint32_t count_formats;
+        uint32_t *formats;
+        uint32_t plane_id;
 
-          uint32_t crtc_id;
-          uint32_t fb_id;
+        uint32_t crtc_id;
+        uint32_t fb_id;
 
-          uint32_t crtc_x, crtc_y;
-          uint32_t x, y;
+        uint32_t crtc_x, crtc_y;
+        uint32_t x, y;
 
-          uint32_t possible_crtcs;
-          uint32_t gamma_size;
-      } drmModePlane, *drmModePlanePtr;
+        uint32_t possible_crtcs;
+        uint32_t gamma_size;
+    } drmModePlane, *drmModePlanePtr;
     """
+
     _fields_ = [
-        ('count_formats', c_uint32),
-        ('formats', POINTER(c_uint32)),
-        ('plane_id', c_uint32),
-        ('crtc_id', c_uint32),
-        ('fb_id', c_uint32),
-        ('crtc_x', c_uint32),
-        ('crtc_y', c_uint32),
-        ('x', c_uint32),
-        ('y', c_uint32),
-        ('possible_crtcs', c_uint32),
-        ('gamma_size', c_uint32)
+        ("count_formats", c_uint32),
+        ("formats", POINTER(c_uint32)),
+        ("plane_id", c_uint32),
+        ("crtc_id", c_uint32),
+        ("fb_id", c_uint32),
+        ("crtc_x", c_uint32),
+        ("crtc_y", c_uint32),
+        ("x", c_uint32),
+        ("y", c_uint32),
+        ("possible_crtcs", c_uint32),
+        ("gamma_size", c_uint32),
     ]
+
 
 class _DRMModeCreateDumb(Structure):
     """
@@ -297,15 +320,17 @@ class _DRMModeCreateDumb(Structure):
         __u64 size;
     };
     """
+
     _fields_ = [
-        ('height', c_uint32),
-        ('width', c_uint32),
-        ('bpp', c_uint32),
-        ('flags', c_uint32),
-        ('handle', c_uint32),
-        ('pitch', c_uint32),
-        ('size', c_uint64)
+        ("height", c_uint32),
+        ("width", c_uint32),
+        ("bpp", c_uint32),
+        ("flags", c_uint32),
+        ("handle", c_uint32),
+        ("pitch", c_uint32),
+        ("size", c_uint64),
     ]
+
 
 class _DRMModeMapDumb(Structure):
     """
@@ -321,11 +346,9 @@ class _DRMModeMapDumb(Structure):
         __u64 offset;
     };
     """
-    _fields_ = [
-        ('handle', c_uint32),
-        ('pad', c_uint32),
-        ('offset', c_uint32)
-    ]
+
+    _fields_ = [("handle", c_uint32), ("pad", c_uint32), ("offset", c_uint32)]
+
 
 class _DRMModeDestroyDumb(Structure):
     """
@@ -333,9 +356,9 @@ class _DRMModeDestroyDumb(Structure):
         __u32 handle;
     };
     """
-    _fields_ = [
-        ('handle', c_uint32)
-    ]
+
+    _fields_ = [("handle", c_uint32)]
+
 
 class _libdrm(object):
     def __init__(self):
@@ -372,7 +395,16 @@ class _libdrm(object):
 
         self.lib.drmModeGetCrtc.argtypes = [c_int, c_uint32]
         self.lib.drmModeGetCrtc.restype = POINTER(DRMModeCrtc)
-        self.lib.drmModeSetCrtc.argtypes = [c_int, c_uint32, c_uint32, c_uint32, c_uint32, POINTER(c_uint32), c_int, POINTER(DRMModeModeInfo)]
+        self.lib.drmModeSetCrtc.argtypes = [
+            c_int,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            POINTER(c_uint32),
+            c_int,
+            POINTER(DRMModeModeInfo),
+        ]
         self.lib.drmModeSetCrtc.restype = c_int
         self.lib.drmModeFreeCrtc.argtypes = [POINTER(DRMModeCrtc)]
         self.lib.drmModeFreeCrtc.restype = None
@@ -384,19 +416,43 @@ class _libdrm(object):
 
         self.lib.drmModeGetPlane.argtypes = [c_int, c_uint32]
         self.lib.drmModeGetPlane.restype = POINTER(DRMModePlane)
-        self.lib.drmModeSetPlane.argtypes = [c_int, c_uint32, c_uint32, c_uint32, c_uint32, c_int32, c_int32, c_uint32, c_uint32, c_uint32, c_uint32, c_uint32, c_uint32]
+        self.lib.drmModeSetPlane.argtypes = [
+            c_int,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_int32,
+            c_int32,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+        ]
         self.lib.drmModeSetPlane.restype = c_int
         self.lib.drmModeFreePlane.argtypes = [POINTER(DRMModePlane)]
         self.lib.drmModeFreePlane.restype = None
 
-        self.lib.drmModeAddFB2.argtypes = [c_int, c_uint32, c_uint32, c_uint32, c_uint32*4, c_uint32*4, c_uint32*4, POINTER(c_uint32), c_uint32]
+        self.lib.drmModeAddFB2.argtypes = [
+            c_int,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint32 * 4,
+            c_uint32 * 4,
+            c_uint32 * 4,
+            POINTER(c_uint32),
+            c_uint32,
+        ]
         self.lib.drmModeAddFB2.restype = c_int
         self.lib.drmModeRmFB.argtypes = [c_int, c_uint32]
         self.lib.drmModeRmFB.restype = c_int
 
         self.lib.drmModeGetProperty.argtypes = [c_int, c_uint32]
         self.lib.drmModeGetProperty.restype = POINTER(DRMModeProperty)
-        self.lib.drmModeFreeProperty.argtypes = [POINTER(DRMMOdeProperty)]
+        self.lib.drmModeFreeProperty.argtypes = [POINTER(DRMModeProperty)]
         self.lib.drmModeFreeProperty.restype = None
 
         self.lib.drmModeObjectGetProperties.argtypes = [c_int, c_uint32, c_uint32]
@@ -469,7 +525,7 @@ class _libdrm(object):
         return self.lib.drmModeRmFB(*args, **kwargs)
 
     def get_property(self, *args, **kwargs):
-        return self.lib.drmModeObjectSetProperty(*args, **kwargs).contents
+        return self.lib.drmModeGetProperty(*args, **kwargs).contents
 
     def free_property(self, *args, **kwargs):
         return self.lib.drmModeFreeProperty(*args, **kwargs)
@@ -486,7 +542,9 @@ class _libdrm(object):
     def ioctl(self, *args, **kwargs):
         return self.lib.drmIoctl(*args, **kwargs)
 
+
 _drm = _libdrm()
+
 
 class Framebuffer(object):
     def __init__(self, fd, width, height, bpp=24):
@@ -531,7 +589,7 @@ class Framebuffer(object):
 
         mreq = _DRMModeMapDumb()
         mreq.handle = creq.handle
-        res = _drm.ioctl(fd, self.DRM_IOCTL_MODE_MAP_DUMB, byref(mreq))
+        res = _drm.ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, byref(mreq))
         if res != 0:
             raise RuntimeError("fail to map dumb")
 
@@ -548,7 +606,7 @@ class Framebuffer(object):
 
         dreq = _DRMModeDestroyDumb()
         dreq.handle = self.handle
-        res = _drm.ioctl(self.fd, self.DRM_IOCTL_MODE_DESTROY_DUMB, byref(dreq))
+        res = _drm.ioctl(self.fd, DRM_IOCTL_MODE_DESTROY_DUMB, byref(dreq))
         if res != 0:
             raise RuntimeError("fail to destroy dumb")
 
@@ -556,6 +614,7 @@ class Framebuffer(object):
         pos = self.map.tell()
         self.map.write(bs)
         self.map.seek(pos)
+
 
 class Plane(object):
     def __init__(self, fd, drm_plane):
@@ -581,12 +640,12 @@ class Plane(object):
             raise RuntimeError(f"fail to set plane: {res} {errno} {err}")
 
     def __str__(self):
-        res = f'''Plane {self.plane_id}:
+        res = f"""Plane {self.plane_id}:
     crtc_id = {self.crtc_id}
     fb_id = {self.fb_id}
     crtc_x, crtc_y = {self.crtc_x}, {self.crtc_y}
     x, y = {self.x}, {self.y}
-    zpos = {self.zpos}'''
+    zpos = {self.zpos}"""
         return res
 
     def _get_zpos(self):
@@ -595,7 +654,7 @@ class Plane(object):
         for i in range(props.count_props):
             prop_id = props.props[i]
             prop = _drm.get_property(self.fd, prop_id)
-            if prop.name == b'zpos':
+            if prop.name == b"zpos":
                 zpos = props.prop_values[i]
             _drm.free_property(byref(prop))
         _drm.free_object_properties(byref(props))
@@ -603,6 +662,7 @@ class Plane(object):
             raise RuntimeError("zpos not found")
         else:
             return zpos
+
 
 class Device(object):
     def __init__(self):
@@ -619,7 +679,9 @@ class Device(object):
         self.max_height = resources.max_height
         self.connector = self._find_connector(resources)
         self.crtc = self._find_crtc(self.connector)
-        free_resouces(byref(resources))
+        self.width = self.crtc.mode.hdisplay
+        self.height = self.crtc.mode.vdisplay
+        _drm.free_resouces(byref(resources))
 
         self.planes = self._collect_planes()
 
@@ -627,6 +689,22 @@ class Device(object):
         _drm.free_crtc(byref(self.crtc))
         _drm.free_connector(byref(self.connector))
         _drm.close(self.fd)
+
+    def pick_plane(self, layer):
+        zposs = sorted([p.zpos for p in self.planes if p.crtc_id == 0])
+        if layer in zposs:
+            plane = [p for p in self.planes if p.zpos == layer][0]
+            self.planes.remove(plane)
+            return plane
+        else:
+            raise RuntimeError(f"layer value must be in {zposs}")
+
+    def free_plane(self, plane):
+        plane.set(0, 0, (0, 0, 0, 0), (0, 0, 0, 0))
+        self.planes.append(plane)
+
+    def create_fb(self, width, height, bpp=24):
+        return Framebuffer(self.fd, width, height, bpp)
 
     def _find_connector(self, res: DRMModeResource) -> DRMModeConnector:
         for i in range(res.count_connectors):
@@ -672,6 +750,3 @@ class Device(object):
             planes.append(p)
         _drm.free_plane_resources(byref(res))
         return planes
-
-
-
