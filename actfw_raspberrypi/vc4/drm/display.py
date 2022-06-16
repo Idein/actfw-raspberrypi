@@ -6,7 +6,7 @@ from .drm import *
 
 class Display(object):
 
-    """Display using VideoCore4 dispmanx"""
+    """Display using libdrm"""
 
     def __init__(self, display_num=0):
         self.device = Device()
@@ -100,7 +100,12 @@ class Window(object):
         Args:
             window (:class:`~actfw_raspberrypi.vc4.display.Window`): target window
         """
-        pass
+        zpos0 = self.plane.zpos
+        zpos1 = window.plane.zpos
+        self.device.free_plane(self.plane)
+        window.set_layer(zpos0)
+        self.plane = self.device.pick_plane(zpos1)
+        self.plane.set(self.crtc_id, self.front_fb.fb_id, self.dst, self.src)
 
     def blit(self, image):
         """
