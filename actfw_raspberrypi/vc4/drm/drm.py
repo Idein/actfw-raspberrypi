@@ -593,7 +593,9 @@ class Framebuffer(object):
         if res != 0:
             raise RuntimeError("fail to map dumb")
 
-        self.map = mmap.mmap(self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset)
+        self.map = mmap.mmap(
+            self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset
+        )
 
         self.write(bytearray(creq.size))
 
@@ -633,7 +635,7 @@ class Plane(object):
         x, y, w, h = dst
         x0, y0, w0, h0 = src
         flags = 0
-        res = _drm.set_plane(self.fd, self.plane_id, crtc_id, fb_id, flags, x, y, w, h, x0, y0, w0, h0)
+        res = _drm.set_plane(self.fd, self.plane_id, crtc_id, fb_id, flags, x, y, w, h, x0 << 16, y0 << 16, w0 << 16, h0 << 16)
         if res != 0:
             errno = get_errno()
             err = os.strerror(errno)
@@ -663,6 +665,24 @@ class Plane(object):
         else:
             return zpos
 
+    def _set_color_space(self):
+        props = _drm.get_object_properties(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE)
+        for i in range(props.count_props):
+            prop_id = props.props[i]
+            prop = _drm.get_property(self.fd, prop_id)
+            if prop.name == b"COLOR_ENCODING":
+                # Use ITU-R BT.601 YCbCr
+                ret = _drm.set_object_property(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 0)
+                if ret < 0:
+                    raise RuntimeError("fail to set color_encoding")
+            elif prop.name == b"COLOR_RANGE":
+                # Use YCbCr full range
+                ret = _drm.set_object_property(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 1)
+                if ret < 0:
+                    raise RuntimeError("fail to set color_range")
+            _drm.free_property(byref(prop))
+        _drm.free_object_properties(byref(props))
+
 
 class Device(object):
     def __init__(self):
@@ -684,11 +704,6 @@ class Device(object):
         _drm.free_resouces(byref(resources))
 
         self.planes = self._collect_planes()
-
-        self.base_fb = self.create_fb(self.width, self.height)
-        connectors = (c_uint32 * 1)()
-        connectors[0] = self.connector.connector_id
-        _drm.set_crtc(self.fd, self.crtc.crtc_id, self.base_fb.fb_id, 0, 0, connectors, 1, byref(self.crtc.mode))
 
     def close(self):
         _drm.free_crtc(byref(self.crtc))
