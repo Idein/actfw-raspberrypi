@@ -581,7 +581,7 @@ class Framebuffer(object):
         offsets[1] = 0
         offsets[2] = 0
         offsets[3] = 0
-        res = _drm.add_fb(fd, creq.width, creq.height, pixel_format, bo_handles, pitches, offsets, byref(fb), creq.flags)
+        res = _drm.add_fb(self.fd, creq.width, creq.height, pixel_format, bo_handles, pitches, offsets, byref(fb), creq.flags)
         if res != 0:
             raise RuntimeError("fail to add framebuffer")
         self.fb_id = fb
@@ -589,11 +589,11 @@ class Framebuffer(object):
 
         mreq = _DRMModeMapDumb()
         mreq.handle = creq.handle
-        res = _drm.ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, byref(mreq))
+        res = _drm.ioctl(self.fd, DRM_IOCTL_MODE_MAP_DUMB, byref(mreq))
         if res != 0:
             raise RuntimeError("fail to map dumb")
 
-        self.map = mmap.mmap(fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset)
+        self.map = mmap.mmap(self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset)
 
         self.write(bytearray(creq.size))
 
@@ -684,6 +684,11 @@ class Device(object):
         _drm.free_resouces(byref(resources))
 
         self.planes = self._collect_planes()
+
+        self.base_fb = self.create_fb(self.width, self.height)
+        connectors = (c_uint32 * 1)()
+        connectors[0] = self.connector.connector_id
+        _drm.set_crtc(self.fd, self.crtc.crtc_id, self.base_fb.fb_id, 0, 0, connectors, 1, byref(self.crtc.mode))
 
     def close(self):
         _drm.free_crtc(byref(self.crtc))
