@@ -280,13 +280,10 @@ class DRMModePlane(Structure):
         uint32_t count_formats;
         uint32_t *formats;
         uint32_t plane_id;
-
         uint32_t crtc_id;
         uint32_t fb_id;
-
         uint32_t crtc_x, crtc_y;
         uint32_t x, y;
-
         uint32_t possible_crtcs;
         uint32_t gamma_size;
     } drmModePlane, *drmModePlanePtr;
@@ -593,14 +590,14 @@ class Framebuffer(object):
         if res != 0:
             raise RuntimeError("fail to map dumb")
 
-        self.map = mmap.mmap(
+        self.buffer = mmap.mmap(
             self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset
         )
 
         self.write(bytearray(creq.size))
 
     def close(self):
-        self.map.close()
+        self.buffer.close()
 
         res = _drm.rm_fb(self.fd, self.fb_id)
         if res != 0:
@@ -613,9 +610,9 @@ class Framebuffer(object):
             raise RuntimeError("fail to destroy dumb")
 
     def write(self, bs):
-        pos = self.map.tell()
-        self.map.write(bs)
-        self.map.seek(pos)
+        pos = self.buffer.tell()
+        self.buffer.write(bs)
+        self.buffer.seek(pos)
 
 
 class Plane(object):
@@ -693,10 +690,6 @@ class Device(object):
             raise RuntimeError("not support dumb buffer")
 
         resources = _drm.get_resources(self.fd)
-        self.min_width = resources.min_width
-        self.max_width = resources.max_width
-        self.min_height = resources.min_height
-        self.max_height = resources.max_height
         self.connector = self._find_connector(resources)
         self.crtc = self._find_crtc(self.connector)
         self.width = self.crtc.mode.hdisplay
