@@ -736,24 +736,13 @@ class Device(object):
         raise RuntimeError("no connected connector")
 
     def _find_crtc(self, conn: DRMModeConnector) -> DRMModeCrtc:
-        # TODO: もう少しちゃんとした実装を考える
-        # - https://github.com/ttymrz/drm-howto/blob/e3cc902acd79a5d1dec87b0cf7db7da07355e673/drm-howto/modeset.c#L337
-        # - https://github.com/raspberrypi/libcamera-apps/blob/f22e148a71f15a7844ac32bcec310fb0834332ef/preview/drm_preview.cpp#L70
-        # - https://manpages.org/drm-kms/7
         enc = None
         crtc = None
-        for i in range(conn.count_encoders):
-            try:
-                enc = _drm.get_encoder(self.fd, conn.encoders[i])
-                crtc = _drm.get_crtc(self.fd, enc.crtc_id)
-                _drm.free_encoder(byref(enc))
-                break
-            except:
-                if enc is not None:
-                    _drm.free_encoder(byref(enc))
-                enc = None
-                crtc = None
-                continue
+
+        enc = _drm.get_encoder(self.fd, conn.encoder_id)
+        crtc = _drm.get_crtc(self.fd, enc.crtc_id)
+        if enc is not None:
+            _drm.free_encoder(byref(enc))
 
         if crtc is None:
             raise RuntimeError("no crtc")
