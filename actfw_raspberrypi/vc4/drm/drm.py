@@ -7,6 +7,13 @@ from ctypes import *
 from ctypes.util import find_library
 from typing import List
 
+"""
+libdrm API:
+
+- https://gitlab.freedesktop.org/mesa/drm/-/blob/main/xf86drm.h
+- https://gitlab.freedesktop.org/mesa/drm/-/blob/main/xf86drmMode.h
+"""
+
 DRM_MODE_OBJECT_CRTC = 0xCCCCCCCC
 DRM_MODE_OBJECT_CONNECTOR = 0xC0C0C0C0
 DRM_MODE_OBJECT_ENCODER = 0xE0E0E0E0
