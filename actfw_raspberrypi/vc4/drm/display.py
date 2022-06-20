@@ -13,9 +13,9 @@ class Display(object):
 
     def get_info(self):
         """
-        Get display information.
+        DEPRECATED: Get display information.
         """
-        pass
+        raise RuntimeError("This API is deprecated. If you need width and height, use Display.size().")
 
     def open_window(self, dst, size, layer):
         """
