@@ -42,60 +42,6 @@ class _MappedBuffer:
             self.__mm.close()
 
 
-class MappedArray:
-    def __init__(self, request, stream, reshape=True):
-        self.__request = request
-        self.__stream = stream
-        self.__buffer = _MappedBuffer(request, stream)
-        self.__array = None
-        self.__reshape = reshape
-
-    def __enter__(self):
-        b = self.__buffer.__enter__()
-        array = np.array(b, copy=False, dtype=np.uint8)
-
-        if self.__reshape:
-            config = self.__request.picam2.camera_config[self.__stream]
-            fmt = config["format"]
-            w, h = config["size"]
-            stride = config["stride"]
-
-            # Turning the 1d array into a 2d image-like array only works if the
-            # image stride (which is in bytes) is a whole number of pixels. Even
-            # then, if they don't match exactly you will get "padding" down the RHS.
-            # Working around this requires another expensive copy of all the data.
-            if fmt in ("BGR888", "RGB888"):
-                if stride != w * 3:
-                    raise RuntimeError(f'MappedArray: Cannot reshape buffer {w}x{h}x3 (stride {stride})')
-                array = array.reshape((h, w, 3))
-            elif fmt in ("XBGR8888", "XRGB8888"):
-                if stride != w * 4:
-                    raise RuntimeError(f'MappedArray: Cannot reshape buffer {w}x{h}x4 (stride {stride})')
-                array = array.reshape((h, w, 4))
-            elif fmt in ("YUV420", "YVU420"):
-                # Returning YUV420 as an image of 50% greater height (the extra bit continaing
-                # the U/V data) is useful because OpenCV can convert it to RGB for us quite
-                # efficiently. We leave any packing in there, however, as it would be easier
-                # to remove that after conversion to RGB (if that's what the caller does).
-                array = array.reshape((h * 3 // 2, stride))
-            elif fmt[0] == 'S':  # raw formats
-                array = array.reshape((h, stride))
-            else:
-                raise RuntimeError("Format " + fmt + " not supported")
-
-        self.__array = array
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        if self.__array is not None:
-            del self.__array
-        self.__buffer.__exit__(exc_type, exc_value, exc_traceback)
-
-    @property
-    def array(self):
-        return self.__array
-
-
 class CompletedRequest:
     def __init__(self, request, picam2):
         self.request = request
@@ -133,10 +79,10 @@ class CompletedRequest:
                         self.picam2.camera.queue_request(self.request)
                 self.request = None
 
-    def make_buffer(self, name):
+    def make_buffer(self, name) -> bytes:
         """Make a 1d numpy array from the named stream's buffer."""
         with _MappedBuffer(self, name) as b:
-            return np.array(b, dtype=np.uint8)
+            return b.read()
 
     def get_metadata(self):
         """Fetch the metadata corresponding to this completed request."""
@@ -170,7 +116,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
                     return json.load(fp)
         raise RuntimeError("Tuning file not found")
 
-    def __init__(self, camera_num=0, verbose_console=None, tuning=None):
+    def __init__(self, camera_num=0, tuning=None):
         """Initialise camera system and open the camera for use."""
         super().__init__()
         tuning_file = None
@@ -186,9 +132,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             os.environ.pop("LIBCAMERA_RPI_TUNING_FILE", None)  # Use default tuning
         self.camera_manager = libcamera.CameraManager.singleton()
         self.camera_idx = camera_num
-        if verbose_console is None:
-            verbose_console = int(os.environ.get('PICAMERA2_LOG_LEVEL', '0'))
-        self.verbose_console = verbose_console
         self._reset_flags()
         try:
             self._open_camera()
@@ -210,36 +153,20 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         self.stop_count = 0
         self.configure_count = 0
         self.frames = 0
-        self.functions = []
         self.async_operation_in_progress = False
         self.asyc_result = None
         self.async_error = None
         self.controls_lock = threading.Lock()
         self.controls = {}
         self.options = {}
-        self._encoder = None
-        self.pre_callback = None
-        self.post_callback = None
         self.completed_requests = []
-        self.lock = threading.Lock()  # protects the functions and completed_requests fields
+        self.lock = threading.Lock()  # protects the completed_requests fields
         self.have_event_loop = False
 
-        self.plane = None
         self.current = None
         self.own_current = False
         self.handle_lock = threading.Lock()
-        self.page_count = 0
-        self.stop_count = 0
         self.size = (640, 480)
-
-
-    @property
-    def request_callback(self):
-        return self.post_callback
-
-    @request_callback.setter
-    def request_callback(self, value):
-        self.post_callback = value
 
     def capture_size(self):
         return self.size
@@ -347,7 +274,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
                   "lores": lores,
                   "raw": raw,
                   "controls": controls}
-        # ??
         self._add_display_and_encode(config, display, encode)
         return config
 
@@ -573,15 +499,12 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         if completed_request:
             if self.display_stream_name is not None:
                 with self.handle_lock:
-                    print("hanling request")
-                    with _MappedBuffer(completed_request, "main") as b:
-                        self._outlet(Frame(b.read()))
-                    self.page_count += 1
+                    self._outlet(Frame(completed_request.make_buffer("main")))
                     if self.current and self.own_current:
                         self.current.release()
-                        self.current = completed_request
-                        # The pipeline will stall if there's only one buffer and we always hold on to
-                        # the last one. When we can, however, holding on to them is still preferred.
+                    self.current = completed_request
+                # The pipeline will stall if there's only one buffer and we always hold on to
+                # the last one. When we can, however, holding on to them is still preferred.
                 config = self.camera_config
                 if config is not None and config['buffer_count'] > 1:
                     self.own_current = True
@@ -605,7 +528,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             sel.register(self.camera_manager.efd, selectors.EVENT_READ, self.handle_request)
             self.started = True
             while self._is_running():
-                events = sel.select(0.2)
+                events = sel.select(0.1)
                 for key, mask in events:
                     callback = key.data
                     callback()
@@ -618,6 +541,8 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         loop, such as in a Qt application."""
         if self.started:
             self.stop_count += 1
+            if self.current is not None and self.own_current:
+                self.current.release()
             self.camera.stop()
             self.camera_manager.get_ready_requests()  # Could anything here need flushing?
             self.started = False
@@ -657,9 +582,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         #   quickly" if an application asks for it, but the rest get recycled to libcamera to
         #   keep the camera system running.
         # * The lock here protects the completed_requests list (because if it's non-empty, an
-        #   application can pop a request from it asynchronously), and the functions list. If
-        #   we don't have a request immediately available, the application will queue some
-        #   "functions" for us to execute here in order to accomplish what it wanted.
+        #   application can pop a request from it asynchronously).
 
         with self.lock:
             # These new requests all have one "use" recorded, which is the one for
@@ -669,35 +592,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             # This is the request we'll hand back to be displayed. This counts as a "use" too.
             display_request = self.completed_requests[-1]
             display_request.acquire()
-
-            # Some applications may (for example) want us to draw something onto these images before
-            # encoding or copying them for an application.
-            if display_request and self.pre_callback:
-                self.pre_callback(display_request)
-
-            # See if any actions have been queued up for us to do here.
-            # Each operation is regarded as completed when it returns True, otherwise it remains
-            # in the list to be tried again next time.
-            if self.functions:
-                function = self.functions[0]
-                if function():
-                    self.functions = self.functions[1:]
-                # Once we've done everything, signal the fact to the thread that requested this work.
-                if not self.functions:
-                    if not self.async_operation_in_progress:
-                        raise RuntimeError("Waiting for non-existent asynchronous operation")
-                    self.async_operation_in_progress = False
-                    if self.async_signal_function is not None:
-                        self.async_signal_function(self)
-
-            # Some applications may want to do something to the image after they've had a change
-            # to copy it, but before it goes to the video encoder.
-            if display_request and self.post_callback:
-                self.post_callback(display_request)
-
-            if self._encoder is not None:
-                stream = self.stream_map[self.encode_stream_name]
-                self._encoder.encode(stream, display_request)
 
             # We can only hang on to a limited number of requests here, most should be recycled
             # immediately back to libcamera. You could consider customising this number.
