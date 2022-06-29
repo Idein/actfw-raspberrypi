@@ -84,10 +84,6 @@ class CompletedRequest:
         with _MappedBuffer(self, name) as b:
             return b.read()
 
-    def get_metadata(self):
-        """Fetch the metadata corresponding to this completed request."""
-        return self.request.metadata
-
 
 STILL = libcamera.StreamRole.StillCapture
 RAW = libcamera.StreamRole.Raw
@@ -152,17 +148,12 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         self.started = False
         self.stop_count = 0
         self.configure_count = 0
-        self.frames = 0
-        self.async_operation_in_progress = False
-        self.asyc_result = None
-        self.async_error = None
         self.controls_lock = threading.Lock()
         self.controls = {}
         self.options = {}
         self.completed_requests = []
         self.lock = threading.Lock()  # protects the completed_requests fields
         self.have_event_loop = False
-
         self.current = None
         self.own_current = False
         self.handle_lock = threading.Lock()
@@ -494,8 +485,8 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         """List the controls supported by the camera."""
         return self.camera.controls
 
-    def handle_request(self):
-        completed_request = self.process_requests()
+    def _handle_request(self):
+        completed_request = self._process_requests()
         if completed_request:
             if self.display_stream_name is not None:
                 with self.handle_lock:
@@ -525,7 +516,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             for request in self._make_requests():
                 self.camera.queue_request(request)
             sel = selectors.DefaultSelector()
-            sel.register(self.camera_manager.efd, selectors.EVENT_READ, self.handle_request)
+            sel.register(self.camera_manager.efd, selectors.EVENT_READ, self._handle_request)
             self.started = True
             while self._is_running():
                 events = sel.select(0.1)
@@ -566,10 +557,9 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         data = os.read(self.camera_manager.efd, 8)
         requests = [CompletedRequest(req, self) for req in self.camera_manager.get_ready_requests()
                     if req.status == libcamera.Request.Status.Complete]
-        self.frames += len(requests)
         return requests
 
-    def process_requests(self) -> None:
+    def _process_requests(self) -> None:
         # This is the function that the event loop, which runs externally to us, must
         # call.
         requests = self._get_completed_requests()
