@@ -6,12 +6,11 @@ import os
 import tempfile
 import time
 import threading
-from typing import List
+from typing import List, Optional, Union, Callable, Generic, Iterable, Tuple, TypeVar
 
 import libcamera
 import numpy as np
 from PIL import Image
-import piexif
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
@@ -112,7 +111,14 @@ class LibcameraCapture(Producer[Frame[bytes]]):
                     return json.load(fp)
         raise RuntimeError("Tuning file not found")
 
-    def __init__(self, camera_num=0, tuning=None):
+    def __init__(
+            self,
+            camera_num: int = 0,
+            tuning: Optional[Union[str, dict]] = None,
+            size: Tuple[int, int] = (640, 480),
+            framerate: int = 30,
+            expected_format: str = "RGB888",
+    ) -> None:
         """Initialise camera system and open the camera for use."""
         super().__init__()
         tuning_file = None
@@ -128,6 +134,9 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             os.environ.pop("LIBCAMERA_RPI_TUNING_FILE", None)  # Use default tuning
         self.camera_manager = libcamera.CameraManager.singleton()
         self.camera_idx = camera_num
+        self.size = size
+        self.framerate = framerate
+        self.expected_format = expected_format
         self._reset_flags()
         try:
             self._open_camera()
@@ -157,7 +166,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         self.current = None
         self.own_current = False
         self.handle_lock = threading.Lock()
-        self.size = (640, 480)
 
     def capture_size(self):
         return self.size
@@ -250,13 +258,13 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         "Make a configuration suitable for camera preview."
         if self.camera is None:
             raise RuntimeError("Camera not opened")
-        main = self._make_initial_stream_config({"format": "XBGR8888", "size": (640, 480)}, main)
+        main = self._make_initial_stream_config({"format": self.expected_format, "size": self.size}, main)
         self.align_stream(main)
         lores = self._make_initial_stream_config({"format": "YUV420", "size": main["size"]}, lores)
         raw = self._make_initial_stream_config({"format": self.sensor_format, "size": main["size"]}, raw)
-        # Let the framerate vary from 12fps to as fast as possible.
+        frame_duration_limits = 1000000 // self.framerate
         controls = {"NoiseReductionMode": libcamera.NoiseReductionMode.Minimal,
-                    "FrameDurationLimits": (self.camera_controls["FrameDurationLimits"][0], 83333)} | controls
+                    "FrameDurationLimits": (frame_duration_limits, frame_duration_limits)} | controls
         config = {"use_case": "preview",
                   "transform": transform,
                   "colour_space": colour_space,
@@ -411,12 +419,10 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         if self.raw_index >= 0:
             self._update_stream_config(camera_config["raw"], libcamera_config.at(self.raw_index))
 
-    def configure_(self, camera_config=None) -> None:
+    def configure(self, camera_config) -> None:
         """Configure the camera system with the given configuration."""
         if self.started:
             raise RuntimeError("Camera must be stopped before configuring")
-        if camera_config is None:
-            camera_config = self.preview_configuration()
 
         # Mark ourselves as unconfigured.
         self.libcamera_config = None
@@ -469,10 +475,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         self.controls = self.camera_config['controls'].copy()
         self.configure_count += 1
 
-    def configure(self, camera_config=None) -> None:
-        """Configure the camera system with the given configuration."""
-        self.configure_(camera_config)
-
     def camera_configuration(self) -> dict:
         """Return the camera configuration."""
         return self.camera_config
@@ -507,7 +509,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
 
     def run(self) -> None:
         import selectors
-        self.configure(self.preview_configuration(main={"size": self.size, "format": "RGB888"}))
+        self.configure(self.preview_configuration())
         if self.camera_config is None:
             raise RuntimeError("Camera has not been configured")
         if self.started:
