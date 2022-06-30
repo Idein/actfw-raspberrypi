@@ -2,6 +2,7 @@
 
 from enum import Enum
 import json
+import mmap
 import os
 import tempfile
 import time
@@ -21,7 +22,6 @@ class _MappedBuffer:
         self.__fb = request.request.buffers[stream]
 
     def __enter__(self):
-        import mmap
 
         # Check if the buffer is contiguous and find the total length.
         fd = self.__fb.fd(0)
