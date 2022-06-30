@@ -9,7 +9,6 @@ import threading
 from typing import List, Optional, Union, Callable, Generic, Iterable, Tuple, TypeVar
 
 import libcamera
-from PIL import Image
 
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
