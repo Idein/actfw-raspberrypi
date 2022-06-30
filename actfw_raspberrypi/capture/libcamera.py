@@ -9,7 +9,6 @@ import threading
 from typing import List, Optional, Union, Callable, Generic, Iterable, Tuple, TypeVar
 
 import libcamera
-import numpy as np
 from PIL import Image
 
 from actfw_core.capture import Frame
@@ -79,7 +78,7 @@ class CompletedRequest:
                 self.request = None
 
     def make_buffer(self, name) -> bytes:
-        """Make a 1d numpy array from the named stream's buffer."""
+        """Make bytes from the named stream's buffer."""
         with _MappedBuffer(self, name) as b:
             return b.read()
 
