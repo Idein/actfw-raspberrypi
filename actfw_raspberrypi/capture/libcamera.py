@@ -259,6 +259,8 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         main = self._make_initial_stream_config({"format": self.expected_format, "size": self.size}, main)
         self.align_stream(main)
         lores = self._make_initial_stream_config({"format": "YUV420", "size": main["size"]}, lores)
+        if lores is not None:
+            self.align_stream(lores)
         raw = self._make_initial_stream_config({"format": self.sensor_format, "size": main["size"]}, raw)
         frame_duration_limits = 1000000 // self.framerate
         controls = {"NoiseReductionMode": libcamera.NoiseReductionMode.Minimal,
