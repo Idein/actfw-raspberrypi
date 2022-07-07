@@ -252,7 +252,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         config['display'] = display
         config['encode'] = encode
 
-    def preview_configuration(self, main={}, lores=None, raw=None, transform=libcamera.Transform(), colour_space=libcamera.ColorSpace.Jpeg(), buffer_count=4, controls={}, display="main", encode="main"):
+    def create_configuration(self, main={}, lores=None, raw=None, transform=libcamera.Transform(), colour_space=libcamera.ColorSpace.Jpeg(), buffer_count=4, controls={}, display="main", encode="main"):
         "Make a configuration suitable for camera preview."
         if self.camera is None:
             raise RuntimeError("Camera not opened")
@@ -507,7 +507,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
 
     def run(self) -> None:
         import selectors
-        self.configure(self.preview_configuration())
+        self.configure(self.create_configuration())
         if self.camera_config is None:
             raise RuntimeError("Camera has not been configured")
         if self.started:
