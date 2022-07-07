@@ -244,15 +244,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
                 raise ValueError(f"Bad key '{key}': valid stream configuration keys are {valid}")
         return stream_config
 
-    def _add_display_and_encode(self, config, display, encode) -> None:
-        if display is not None and config.get(display, None) is None:
-            raise RuntimeError(f"Display stream {display} was not defined")
-        if encode is not None and config.get(encode, None) is None:
-            raise RuntimeError(f"Encode stream {encode} was not defined")
-        config['display'] = display
-        config['encode'] = encode
-
-    def create_configuration(self, main={}, lores=None, raw=None, transform=libcamera.Transform(), colour_space=libcamera.ColorSpace.Jpeg(), buffer_count=4, controls={}, display="main", encode="main"):
+    def create_configuration(self, main={}, lores=None, raw=None, transform=libcamera.Transform(), colour_space=libcamera.ColorSpace.Jpeg(), buffer_count=4, controls={}):
         "Make a configuration suitable for camera preview."
         if self.camera is None:
             raise RuntimeError("Camera not opened")
@@ -272,7 +264,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
                   "lores": lores,
                   "raw": raw,
                   "controls": controls}
-        self._add_display_and_encode(config, display, encode)
         return config
 
     def _check_stream_config(self, stream_config, name) -> None:
@@ -449,14 +440,6 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         self.stream_map["lores"] = libcamera_config.at(self.lores_index).stream if self.lores_index >= 0 else None
         self.stream_map["raw"] = libcamera_config.at(self.raw_index).stream if self.raw_index >= 0 else None
 
-        # These name the streams that we will display/encode.
-        self.display_stream_name = camera_config['display']
-        if self.display_stream_name is not None and self.display_stream_name not in camera_config:
-            raise RuntimeError(f"Display stream {self.display_stream_name} was not defined")
-        self.encode_stream_name = camera_config['encode']
-        if self.encode_stream_name is not None and self.encode_stream_name not in camera_config:
-            raise RuntimeError(f"Encode stream {self.encode_stream_name} was not defined")
-
         # Allocate all the frame buffers.
         self.streams = [stream_config.stream for stream_config in libcamera_config]
         self.allocator = libcamera.FrameBufferAllocator(self.camera)
@@ -489,21 +472,18 @@ class LibcameraCapture(Producer[Frame[bytes]]):
     def _handle_request(self):
         completed_request = self._process_requests()
         if completed_request:
-            if self.display_stream_name is not None:
-                with self.handle_lock:
-                    self._outlet(Frame(completed_request.make_buffer("main")))
-                    if self.current and self.own_current:
-                        self.current.release()
-                    self.current = completed_request
-                # The pipeline will stall if there's only one buffer and we always hold on to
-                # the last one. When we can, however, holding on to them is still preferred.
-                config = self.camera_config
-                if config is not None and config['buffer_count'] > 1:
-                    self.own_current = True
-                else:
-                    self.own_current = False
-                    completed_request.release()
+            with self.handle_lock:
+                self._outlet(Frame(completed_request.make_buffer("main")))
+                if self.current and self.own_current:
+                    self.current.release()
+                self.current = completed_request
+            # The pipeline will stall if there's only one buffer and we always hold on to
+            # the last one. When we can, however, holding on to them is still preferred.
+            config = self.camera_config
+            if config is not None and config['buffer_count'] > 1:
+                self.own_current = True
             else:
+                self.own_current = False
                 completed_request.release()
 
     def run(self) -> None:
