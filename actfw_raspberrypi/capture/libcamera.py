@@ -263,8 +263,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             self.align_stream(lores)
         raw = self._make_initial_stream_config({"format": self.sensor_format, "size": main["size"]}, raw)
         frame_duration_limits = 1000000 // self.framerate
-        controls = {"NoiseReductionMode": libcamera.NoiseReductionMode.Minimal,
-                    "FrameDurationLimits": (frame_duration_limits, frame_duration_limits)} | controls
+        controls = {"FrameDurationLimits": (frame_duration_limits, frame_duration_limits)} | controls
         config = {"use_case": "preview",
                   "transform": transform,
                   "colour_space": colour_space,
