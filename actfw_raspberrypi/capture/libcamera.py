@@ -115,7 +115,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
             tuning: Optional[Union[str, dict]] = None,
             size: Tuple[int, int] = (640, 480),
             framerate: int = 30,
-            expected_format: str = "RGB888",
+            expected_format: str = "BGR888",
     ) -> None:
         """Initialise camera system and open the camera for use."""
         super().__init__()
