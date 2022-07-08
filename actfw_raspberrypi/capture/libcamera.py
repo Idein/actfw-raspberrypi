@@ -244,7 +244,7 @@ class LibcameraCapture(Producer[Frame[bytes]]):
                 raise ValueError(f"Bad key '{key}': valid stream configuration keys are {valid}")
         return stream_config
 
-    def create_configuration(self, main={}, lores=None, raw=None, transform=libcamera.Transform(), colour_space=libcamera.ColorSpace.Jpeg(), buffer_count=4, controls={}):
+    def create_configuration(self, main={}, lores=None, raw={}, transform=libcamera.Transform(), colour_space=libcamera.ColorSpace.Jpeg(), buffer_count=2, controls={}):
         "Make a configuration suitable for camera preview."
         if self.camera is None:
             raise RuntimeError("Camera not opened")
@@ -253,10 +253,10 @@ class LibcameraCapture(Producer[Frame[bytes]]):
         lores = self._make_initial_stream_config({"format": "YUV420", "size": main["size"]}, lores)
         if lores is not None:
             self.align_stream(lores)
-        raw = self._make_initial_stream_config({"format": self.sensor_format, "size": main["size"]}, raw)
+        raw = self._make_initial_stream_config({"format": self.sensor_format, "size": self.sensor_resolution}, raw)
         frame_duration_limits = 1000000 // self.framerate
         controls = {"FrameDurationLimits": (frame_duration_limits, frame_duration_limits)} | controls
-        config = {"use_case": "preview",
+        config = {"use_case": "still",
                   "transform": transform,
                   "colour_space": colour_space,
                   "buffer_count": buffer_count,
@@ -319,21 +319,17 @@ class LibcameraCapture(Producer[Frame[bytes]]):
     def _make_libcamera_config(self, camera_config):
         # Make a libcamera configuration object from our Python configuration.
 
-        # We will create each stream with the "viewfinder" role just to get the stream
-        # configuration objects, and note the positions our named streams will have in
-        # libcamera's stream list.
-        roles = [VIEWFINDER]
-        index = 1
+        # Using RAW role in addition to STILL because it forces the camera to capture
+        # with full resolution.
+        roles = [STILL, RAW]
+        index = 2
         self.main_index = 0
         self.lores_index = -1
-        self.raw_index = -1
+        self.raw_index = 1
         if camera_config["lores"] is not None:
             self.lores_index = index
             index += 1
             roles += [VIEWFINDER]
-        if camera_config["raw"] is not None:
-            self.raw_index = index
-            roles += [RAW]
 
         # Make the libcamera configuration, and then we'll write all our parameters over
         # the ones it gave us.
