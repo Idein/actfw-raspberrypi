@@ -690,7 +690,7 @@ class Plane(object):
 
 class Device(object):
     def __init__(self):
-        self.fd = _drm.open(b"vc4", b"")
+        self.fd = _drm.open(b"vc4", None)
         if self.fd < 0:
             raise RuntimeError("fail to open drm device")
         if not _drm.support_dumb_buffer(self.fd):
