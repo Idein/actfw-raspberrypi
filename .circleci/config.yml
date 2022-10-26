@@ -1,7 +1,7 @@
 version: 2.1
 
 references:
-  python-versions: &python-versions ["3.6", "3.7", "3.8", "3.9"]
+  python-versions: &python-versions ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
 commands:
   install-python-dev-tools:
@@ -59,7 +59,7 @@ commands:
 jobs:
   lint:
     docker:
-      - image: python:3-buster
+      - image: python:3.10-buster
         auth: &docker-hub-auth
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -133,7 +133,7 @@ jobs:
 
   build-api-doc:
     docker:
-      - image: python:3-buster
+      - image: python:3.10-buster
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -154,7 +154,7 @@ jobs:
 
   build-package:
     docker:
-      - image: python:3-buster
+      - image: python:3.10-buster
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -172,7 +172,7 @@ jobs:
 
   validate-version-with-tag:
     docker:
-      - image: python:3-buster
+      - image: python:3.10-buster
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -217,7 +217,7 @@ jobs:
 
   deploy-package:
     docker:
-      - image: python:3-buster
+      - image: python:3.10-buster
         auth: *docker-hub-auth
     steps:
       - checkout
