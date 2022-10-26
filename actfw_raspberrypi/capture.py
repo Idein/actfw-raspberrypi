@@ -5,6 +5,7 @@ from typing import Any, Generator
 from actfw_core.capture import Frame
 from actfw_core.task import Producer
 from actfw_core.util.pad import _PadBase, _PadDiscardingOld
+from actfw_raspberrypi.util import is_bullseye, is_buster
 
 
 class PiCameraCapture(Producer[Frame[bytes]]):
@@ -60,19 +61,3 @@ class PiCameraCapture(Producer[Frame[bytes]]):
                     break
 
         self.camera.capture_sequence(generator(), *self.args, **self.kwargs)
-
-
-def get_debian_version() -> int:
-    with open("/etc/debian_version", "r") as f:
-        raw_version = f.readline()
-    return int(float(raw_version.rstrip()))
-
-
-def is_buster() -> bool:
-    version = get_debian_version()
-    return version == 10
-
-
-def is_bullseye() -> bool:
-    version = get_debian_version()
-    return version == 11

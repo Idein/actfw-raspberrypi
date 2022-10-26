@@ -1,4 +1,7 @@
+import warnings
 from typing import Optional, Tuple
+
+from actfw_raspberrypi.util import is_bullseye, is_buster
 
 from .edid import EDID
 
@@ -26,6 +29,13 @@ class Display:
             size (int, int): display area resolution
 
         """
+        if is_buster():
+            warnings.warn(
+                "actfw_raspberrypi.Display do not work in bullseye and actfw_raspberrypi.Display will be deprecated soon.",
+                PendingDeprecationWarning,
+            )
+        elif is_bullseye():
+            raise RuntimeError("Display do not work in bullseye.")
         self.size = size
         self.preferred_size = EDID().prefferd_mode()
         scale_w = self.preferred_size[0] / self.size[0]
