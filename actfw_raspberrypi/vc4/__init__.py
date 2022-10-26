@@ -1,1 +1,1 @@
-from .display import Display, Window  # type: ignore  # noqa F401
+from .display import Display  # type: ignore  # noqa F401

@@ -9,6 +9,8 @@ class Display(object):
     """Display using libdrm"""
 
     def __init__(self, display_num=0):
+        if display_num != 0:
+            raise RuntimeError(f"display_num={display_num} is not supported in bullseye.")
         self.device = Device()
 
     def get_info(self):
