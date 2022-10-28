@@ -1,22 +1,24 @@
 # type: ignore
 # flake8: noqa
 
-from actfw_raspberrypi.util import is_bullseye, is_buster
+from actfw_core.system import get_actcast_firmware_type
 
 
 class Display(object):
     def __init__(self, display_num=0):
         self.display = None
-        if is_buster():
-            from actfw_raspberrypi.vc4.dispmanx import Display
 
-            self.display = Display(display_num)
-        elif is_bullseye():
+        firmware_type = get_actcast_firmware_type()
+        if firmware_type == "raspberrypi-bullseye":
             from actfw_raspberrypi.vc4.drm import Display
 
             self.display = Display(display_num)
+        elif firmware_type == "raspberrypi-buster" or firmware_type is None:
+            from actfw_raspberrypi.vc4.dispmanx import Display
+
+            self.display = Display(display_num)
         else:
-            raise RuntimeError("not support os version.")
+            raise RuntimeError(f"Error: firmware_type={firmware_type} is not supported.")
 
     def get_info(self):
         return self.display.get_info()

@@ -3,9 +3,9 @@ import warnings
 from typing import Any, Generator
 
 from actfw_core.capture import Frame
+from actfw_core.system import get_actcast_firmware_type
 from actfw_core.task import Producer
 from actfw_core.util.pad import _PadBase, _PadDiscardingOld
-from actfw_raspberrypi.util import is_bullseye, is_buster
 
 
 class PiCameraCapture(Producer[Frame[bytes]]):
@@ -27,13 +27,14 @@ class PiCameraCapture(Producer[Frame[bytes]]):
             camera (:class:`~picamera.PiCamera`): picamera object
 
         """
-        if is_buster():
+        firmware_type = get_actcast_firmware_type()
+        if firmware_type == "raspberrypi-bullseye":
+            raise RuntimeError("PiCameraCapture do not work in bullseye.")
+        else:
             warnings.warn(
                 "PiCameraCapture do not work in bullseye and PiCameraCapture will be deprecated soon.",
                 PendingDeprecationWarning,
             )
-        elif is_bullseye():
-            raise RuntimeError("PiCameraCapture do not work in bullseye.")
 
         super().__init__()
         self.camera = camera
