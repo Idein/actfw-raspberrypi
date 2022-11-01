@@ -1,14 +1,18 @@
 # type: ignore
 # flake8: noqa
 
-from actfw_core.system import get_actcast_firmware_type
+from actfw_core.system import EnvironmentVariableNotSet, get_actcast_firmware_type
 
 
 class Display(object):
     def __init__(self, display_num=0):
         self.display = None
 
-        firmware_type = get_actcast_firmware_type()
+        try:
+            firmware_type = get_actcast_firmware_type()
+        except EnvironmentVariableNotSet:
+            firmware_type = None
+
         if firmware_type == "raspberrypi-bullseye":
             from actfw_raspberrypi.vc4.drm import Display
 

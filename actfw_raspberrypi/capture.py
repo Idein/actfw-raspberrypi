@@ -3,7 +3,7 @@ import warnings
 from typing import Any, Generator
 
 from actfw_core.capture import Frame
-from actfw_core.system import get_actcast_firmware_type
+from actfw_core.system import EnvironmentVariableNotSet, get_actcast_firmware_type
 from actfw_core.task import Producer
 from actfw_core.util.pad import _PadBase, _PadDiscardingOld
 
@@ -27,7 +27,11 @@ class PiCameraCapture(Producer[Frame[bytes]]):
             camera (:class:`~picamera.PiCamera`): picamera object
 
         """
-        firmware_type = get_actcast_firmware_type()
+        try:
+            firmware_type = get_actcast_firmware_type()
+        except EnvironmentVariableNotSet:
+            firmware_type = None
+
         if firmware_type == "raspberrypi-bullseye":
             raise RuntimeError("PiCameraCapture do not work in bullseye.")
         else:
