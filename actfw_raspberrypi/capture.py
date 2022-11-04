@@ -1,8 +1,9 @@
 import io
 import warnings
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 
 from actfw_core.capture import Frame
+from actfw_core.system import EnvironmentVariableNotSet, get_actcast_firmware_type
 from actfw_core.task import Producer
 from actfw_core.util.pad import _PadBase, _PadDiscardingOld
 
@@ -26,13 +27,18 @@ class PiCameraCapture(Producer[Frame[bytes]]):
             camera (:class:`~picamera.PiCamera`): picamera object
 
         """
-        if is_buster():
+        try:
+            firmware_type: Optional[str] = get_actcast_firmware_type()
+        except EnvironmentVariableNotSet:
+            firmware_type = None
+
+        if firmware_type == "raspberrypi-bullseye":
+            raise RuntimeError("PiCameraCapture do not work in bullseye.")
+        else:
             warnings.warn(
                 "PiCameraCapture do not work in bullseye and PiCameraCapture will be deprecated soon.",
                 PendingDeprecationWarning,
             )
-        elif is_bullseye():
-            raise RuntimeError("PiCameraCapture do not work in bullseye.")
 
         super().__init__()
         self.camera = camera
@@ -60,19 +66,3 @@ class PiCameraCapture(Producer[Frame[bytes]]):
                     break
 
         self.camera.capture_sequence(generator(), *self.args, **self.kwargs)
-
-
-def get_debian_version() -> int:
-    with open("/etc/debian_version", "r") as f:
-        raw_version = f.readline()
-    return int(float(raw_version.rstrip()))
-
-
-def is_buster() -> bool:
-    version = get_debian_version()
-    return version == 10
-
-
-def is_bullseye() -> bool:
-    version = get_debian_version()
-    return version == 11

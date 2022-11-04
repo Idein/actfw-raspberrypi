@@ -6,7 +6,7 @@ import pytest
     [
         ("actfw_raspberrypi", "Display"),
         ("actfw_raspberrypi.capture", "PiCameraCapture"),
-        ("actfw_raspberrypi.vc4", "Display, Window"),
+        ("actfw_raspberrypi.vc4", "Display"),
     ],
 )
 def test_import_actfw_raspberrypi(from_, import_):

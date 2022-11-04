@@ -1,4 +1,7 @@
+import warnings
 from typing import Optional, Tuple
+
+from actfw_core.system import EnvironmentVariableNotSet, get_actcast_firmware_type
 
 from .edid import EDID
 
@@ -26,6 +29,19 @@ class Display:
             size (int, int): display area resolution
 
         """
+        try:
+            firmware_type: Optional[str] = get_actcast_firmware_type()
+        except EnvironmentVariableNotSet:
+            firmware_type = None
+
+        if firmware_type == "raspberrypi-bullseye":
+            raise RuntimeError("Display do not work in bullseye.")
+        else:
+            warnings.warn(
+                "actfw_raspberrypi.Display do not work in bullseye and actfw_raspberrypi.Display will be deprecated soon.",
+                PendingDeprecationWarning,
+            )
+
         self.size = size
         self.preferred_size = EDID().prefferd_mode()
         scale_w = self.preferred_size[0] / self.size[0]
