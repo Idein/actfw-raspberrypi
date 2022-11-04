@@ -1,6 +1,6 @@
 import io
 import warnings
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 
 from actfw_core.capture import Frame
 from actfw_core.system import EnvironmentVariableNotSet, get_actcast_firmware_type
@@ -28,7 +28,7 @@ class PiCameraCapture(Producer[Frame[bytes]]):
 
         """
         try:
-            firmware_type = get_actcast_firmware_type()
+            firmware_type: Optional[str] = get_actcast_firmware_type()
         except EnvironmentVariableNotSet:
             firmware_type = None
 

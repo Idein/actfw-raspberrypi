@@ -30,7 +30,7 @@ class Display:
 
         """
         try:
-            firmware_type = get_actcast_firmware_type()
+            firmware_type: Optional[str] = get_actcast_firmware_type()
         except EnvironmentVariableNotSet:
             firmware_type = None
 
