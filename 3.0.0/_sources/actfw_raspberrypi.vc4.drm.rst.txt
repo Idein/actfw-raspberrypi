@@ -1,0 +1,29 @@
+actfw\_raspberrypi.vc4.drm package
+==================================
+
+Submodules
+----------
+
+actfw\_raspberrypi.vc4.drm.display module
+-----------------------------------------
+
+.. automodule:: actfw_raspberrypi.vc4.drm.display
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+actfw\_raspberrypi.vc4.drm.drm module
+-------------------------------------
+
+.. automodule:: actfw_raspberrypi.vc4.drm.drm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: actfw_raspberrypi.vc4.drm
+   :members:
+   :undoc-members:
+   :show-inheritance:

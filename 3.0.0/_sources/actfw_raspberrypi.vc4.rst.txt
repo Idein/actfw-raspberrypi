@@ -1,0 +1,37 @@
+actfw\_raspberrypi.vc4 package
+==============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   actfw_raspberrypi.vc4.drm
+
+Submodules
+----------
+
+actfw\_raspberrypi.vc4.display module
+-------------------------------------
+
+.. automodule:: actfw_raspberrypi.vc4.display
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+actfw\_raspberrypi.vc4.dispmanx module
+--------------------------------------
+
+.. automodule:: actfw_raspberrypi.vc4.dispmanx
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: actfw_raspberrypi.vc4
+   :members:
+   :undoc-members:
+   :show-inheritance:
