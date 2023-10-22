@@ -5,7 +5,7 @@ from actfw_core.system import EnvironmentVariableNotSet, get_actcast_firmware_ty
 
 
 class Display(object):
-    def __init__(self, display_num=0):
+    def __init__(self, display_num=0, drm_device_name=None):
         self.display = None
 
         try:
@@ -16,7 +16,7 @@ class Display(object):
         if firmware_type == "raspberrypi-bullseye":
             from actfw_raspberrypi.vc4.drm import Display
 
-            self.display = Display(display_num)
+            self.display = Display(display_num, drm_device_name)
         elif firmware_type == "raspberrypi-buster" or firmware_type is None:
             from actfw_raspberrypi.vc4.dispmanx import Display
 
