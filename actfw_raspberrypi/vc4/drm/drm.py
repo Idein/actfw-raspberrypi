@@ -562,7 +562,9 @@ class Framebuffer(object):
 
         res = _drm.ioctl(self.fd, DRM_IOCTL_MODE_CREATE_DUMB, byref(creq))
         if res != 0:
-            raise RuntimeError("fail to create dumb")
+            errno = get_errno()
+            err = os.strerror(errno)
+            raise RuntimeError(f"fail to create dumb: {res} {errno} {err}"}
 
         fb = c_uint32()
         if creq.bpp == 24:
@@ -587,7 +589,9 @@ class Framebuffer(object):
         offsets[3] = 0
         res = _drm.add_fb(self.fd, creq.width, creq.height, pixel_format, bo_handles, pitches, offsets, byref(fb), creq.flags)
         if res != 0:
-            raise RuntimeError("fail to add framebuffer")
+            errno = get_errno()
+            err = os.strerror(errno)
+            raise RuntimeError(f"fail to add framebuffer: {res} {errno} {err}")
         self.fb_id = fb
         self.handle = creq.handle
 
@@ -595,7 +599,9 @@ class Framebuffer(object):
         mreq.handle = creq.handle
         res = _drm.ioctl(self.fd, DRM_IOCTL_MODE_MAP_DUMB, byref(mreq))
         if res != 0:
-            raise RuntimeError("fail to map dumb")
+            errno = get_errno()
+            err = os.strerror(errno)
+            raise RuntimeError(f"fail to map dumb: {res} {errno} {err}")
 
         self.buffer = mmap.mmap(
             self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset
