@@ -564,7 +564,7 @@ class Framebuffer(object):
         if res != 0:
             errno = get_errno()
             err = os.strerror(errno)
-            raise RuntimeError(f"fail to create dumb: {res} {errno} {err}"}
+            raise RuntimeError(f"fail to create dumb: {res} {errno} {err}")
 
         fb = c_uint32()
         if creq.bpp == 24:
