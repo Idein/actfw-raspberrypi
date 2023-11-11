@@ -439,6 +439,17 @@ class _libdrm(object):
         self.lib.drmModeFreePlane.argtypes = [POINTER(DRMModePlane)]
         self.lib.drmModeFreePlane.restype = None
 
+        self.lib.drmModeAddFB.argtypes = [
+                c_int,
+                c_uint32,
+                c_uint32,
+                c_uint8,
+                c_uint8,
+                c_uint32,
+                c_uint32,
+                POINTER(c_uint32),
+        ]
+        self.lib.drmModeAddFB.restype = c_int
         self.lib.drmModeAddFB2.argtypes = [
             c_int,
             c_uint32,
@@ -523,6 +534,9 @@ class _libdrm(object):
         return self.lib.drmModeFreePlane(*args, **kwargs)
 
     def add_fb(self, *args, **kwargs):
+        return self.lib.drmModeAddFB(*args, **kwargs)
+
+    def add_fb2(self, *args, **kwargs):
         return self.lib.drmModeAddFB2(*args, **kwargs)
 
     def rm_fb(self, *args, **kwargs):
@@ -551,7 +565,59 @@ _drm = _libdrm()
 
 
 class Framebuffer(object):
-    def __init__(self, fd, width, height, bpp=24):
+    # def __init__(self, fd, width, height, bpp=24):
+    #     self.fd = fd
+
+    #     creq = _DRMModeCreateDumb()
+    #     creq.width = width
+    #     creq.height = height
+    #     creq.bpp = bpp
+    #     creq.flags = 0
+
+    #     res = _drm.ioctl(self.fd, DRM_IOCTL_MODE_CREATE_DUMB, byref(creq))
+    #     if res != 0:
+    #         raise RuntimeError("fail to create dumb")
+
+    #     fb = c_uint32()
+    #     if creq.bpp == 24:
+    #         pixel_format = DRM_FORMAT_BGR888
+    #     else:
+    #         raise RuntimeError(f"not support bpp: {creq.bpp}")
+
+    #     bo_handles = (c_uint32 * 4)()
+    #     bo_handles[0] = creq.handle
+    #     bo_handles[1] = 0
+    #     bo_handles[2] = 0
+    #     bo_handles[3] = 0
+    #     pitches = (c_uint32 * 4)()
+    #     pitches[0] = creq.pitch
+    #     pitches[1] = 0
+    #     pitches[2] = 0
+    #     pitches[3] = 0
+    #     offsets = (c_uint32 * 4)()
+    #     offsets[0] = 0
+    #     offsets[1] = 0
+    #     offsets[2] = 0
+    #     offsets[3] = 0
+    #     res = _drm.add_fb2(self.fd, creq.width, creq.height, pixel_format, bo_handles, pitches, offsets, byref(fb), creq.flags)
+    #     if res != 0:
+    #         raise RuntimeError("fail to add framebuffer")
+    #     self.fb_id = fb
+    #     self.handle = creq.handle
+
+    #     mreq = _DRMModeMapDumb()
+    #     mreq.handle = creq.handle
+    #     res = _drm.ioctl(self.fd, DRM_IOCTL_MODE_MAP_DUMB, byref(mreq))
+    #     if res != 0:
+    #         raise RuntimeError("fail to map dumb")
+
+    #     self.buffer = mmap.mmap(
+    #         self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset
+    #     )
+
+    #     self.write(bytearray(creq.size))
+
+    def __init__(self, fd, width, height, bpp=32):
         self.fd = fd
 
         creq = _DRMModeCreateDumb()
@@ -565,27 +631,9 @@ class Framebuffer(object):
             raise RuntimeError("fail to create dumb")
 
         fb = c_uint32()
-        if creq.bpp == 24:
-            pixel_format = DRM_FORMAT_BGR888
-        else:
-            raise RuntimeError(f"not support bpp: {creq.bpp}")
-
-        bo_handles = (c_uint32 * 4)()
-        bo_handles[0] = creq.handle
-        bo_handles[1] = 0
-        bo_handles[2] = 0
-        bo_handles[3] = 0
-        pitches = (c_uint32 * 4)()
-        pitches[0] = creq.pitch
-        pitches[1] = 0
-        pitches[2] = 0
-        pitches[3] = 0
-        offsets = (c_uint32 * 4)()
-        offsets[0] = 0
-        offsets[1] = 0
-        offsets[2] = 0
-        offsets[3] = 0
-        res = _drm.add_fb(self.fd, creq.width, creq.height, pixel_format, bo_handles, pitches, offsets, byref(fb), creq.flags)
+        depth = creq.bpp
+        bo_handle = creq.handle
+        res = _drm.add_fb(self.fd, creq.width, creq.height, depth, creq.bpp, creq.pitch, bo_handle, byref(fb))
         if res != 0:
             raise RuntimeError("fail to add framebuffer")
         self.fb_id = fb
@@ -723,7 +771,7 @@ class Device(object):
         plane.set(0, 0, (0, 0, 0, 0), (0, 0, 0, 0))
         self.planes.append(plane)
 
-    def create_fb(self, width, height, bpp=24):
+    def create_fb(self, width, height, bpp=32):
         return Framebuffer(self.fd, width, height, bpp)
 
     def _find_connector(self, res: DRMModeResource) -> DRMModeConnector:

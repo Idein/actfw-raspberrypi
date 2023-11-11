@@ -19,7 +19,7 @@ class Display(object):
         """
         raise RuntimeError("This API is deprecated. If you need width and height, use Display.size().")
 
-    def open_window(self, dst, size, layer):
+    def open_window(self, dst, size, layer, bpp=32):
         """
         Open new window.
 
@@ -31,7 +31,7 @@ class Display(object):
         Returns:
             :class:`~actfw_raspberrypi.vc4.drm.display.Window`: window
         """
-        return Window(self.device, dst, size, layer)
+        return Window(self.device, dst, size, layer, bpp)
 
     def size(self):
         """
@@ -58,15 +58,15 @@ class Window(object):
     Double buffered window.
     """
 
-    def __init__(self, device, dst, size, layer):
+    def __init__(self, device, dst, size, layer, bpp=32):
         self.device = device
         self.size = size
         width, height = size
         self.crtc_id = self.device.crtc.crtc_id
         self.src = (0, 0, width, height)
         self.dst = dst
-        self.front_fb = self.device.create_fb(width, height)
-        self.back_fb = self.device.create_fb(width, height)
+        self.front_fb = self.device.create_fb(width, height, bpp)
+        self.back_fb = self.device.create_fb(width, height, bpp)
 
         self.plane = self.device.pick_plane(layer)
         self.plane.set(self.crtc_id, self.front_fb.fb_id, self.dst, self.src)
