@@ -760,7 +760,6 @@ class Device(object):
 
     def pick_plane(self, layer):
         zposs = sorted([p.zpos for p in self.planes if p.crtc_id == 0])
-        print(f"zposs = {zposs})")
         if layer in zposs:
             plane = [p for p in self.planes if p.zpos == layer][0]
             self.planes.remove(plane)
