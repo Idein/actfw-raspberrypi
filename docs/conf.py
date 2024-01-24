@@ -12,7 +12,7 @@
 #
 import os
 import sys
-from typing import List
+from typing import Any, List
 
 import pkg_resources
 import sphinx.ext.apidoc
@@ -21,7 +21,7 @@ import sphinx_theme  # type: ignore[import]
 sys.path.insert(0, os.path.abspath("../"))
 
 
-def setup(app):
+def setup(app: Any) -> None:
     sphinx.ext.apidoc.main(["-f", "-o", "docs", "."])
 
 
