@@ -1,7 +1,13 @@
 version: 2.1
 
 references:
-  python-versions: &python-versions ["3.6", "3.7", "3.8", "3.9", "3.10"]
+  image-tags: &image-tags
+    - "python:3.7-buster"
+    - "python:3.8-buster"
+    - "python:3.9-bullseye"
+    - "python:3.10-bullseye"
+    - "python:3.11-bullseye"
+    - "python:3.12-bullseye"
 
 commands:
   install-python-dev-tools:
@@ -22,13 +28,13 @@ commands:
   install-old-poetry:
     steps:
       - run:
-          name: Install poetry 1.1
+          name: Install poetry 1.5.1
           command: |
             python3 -m pip install --user pipx
             python3 -m pipx ensurepath
             echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
-            pipx install poetry==1.1.15
+            pipx install poetry==1.5.1
   poetry-install:
     steps:
       # See: https://circleci.com/docs/2.0/language-python/#cache-dependencies
@@ -59,7 +65,7 @@ commands:
 jobs:
   lint:
     docker:
-      - image: python:3.10-buster
+      - image: python:3.10-bullseye
         auth: &docker-hub-auth
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -79,23 +85,23 @@ jobs:
 
   test:
     parameters:
-      python-version:
+      image-tag:
         type: string
     docker:
-      - image: python:<<parameters.python-version>>-buster
+      - image: <<parameters.image-tag>>
         auth: *docker-hub-auth
     steps:
       - checkout
       - install-python-dev-tools
       - when:
           condition:
-            equal: ["3.6", << parameters.python-version >> ]
+            equal: ["python:3.7-buster", << parameters.image-tag >> ]
           steps:
             - install-old-poetry
       - when:
           condition:
             not:
-              equal: ["3.6", << parameters.python-version >> ]
+              equal: ["python:3.7-buster", << parameters.image-tag >> ]
           steps:
             - install-poetry
       - poetry-install
@@ -107,7 +113,7 @@ jobs:
       python-version:
         type: string
     docker:
-      - image: python:<<parameters.python-version>>-buster
+      - image: <<parameters.image-tag>>
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -117,13 +123,13 @@ jobs:
       - install-python-dev-tools
       - when:
           condition:
-            equal: ["3.6", << parameters.python-version >> ]
+            equal: ["python:3.7-buster", << parameters.image-tag >> ]
           steps:
             - install-old-poetry
       - when:
           condition:
             not:
-              equal: ["3.6", << parameters.python-version >> ]
+              equal: ["python:3.7-buster", << parameters.image-tag >> ]
           steps:
             - install-poetry
       - poetry-install
@@ -133,7 +139,7 @@ jobs:
 
   build-api-doc:
     docker:
-      - image: python:3.10-buster
+      - image: python:3.10-bullseye
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -154,7 +160,7 @@ jobs:
 
   build-package:
     docker:
-      - image: python:3.10-buster
+      - image: python:3.10-bullseye
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -172,7 +178,7 @@ jobs:
 
   validate-version-with-tag:
     docker:
-      - image: python:3.10-buster
+      - image: python:3.10-bullseye
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -217,7 +223,7 @@ jobs:
 
   deploy-package:
     docker:
-      - image: python:3.10-buster
+      - image: python:3.10-bullseye
         auth: *docker-hub-auth
     steps:
       - checkout
@@ -302,13 +308,13 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              python-version: *python-versions
+              image-tag: *image-tags
       - test-with-up-to-date-dependencies:
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              python-version: *python-versions
+              image-tag: *image-tags
       - build-api-doc:
           context:
             - docker-hub-creds
