@@ -12,10 +12,11 @@
 #
 import os
 import sys
+from typing import List
 
 import pkg_resources
 import sphinx.ext.apidoc
-import sphinx_theme
+import sphinx_theme  # type: ignore[import]
 
 sys.path.insert(0, os.path.abspath("../"))
 
@@ -63,7 +64,7 @@ html_theme_path = [sphinx_theme.get_html_theme_path(html_theme)]
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path: List[str] = []
 
 
 autoclass_content = "both"
