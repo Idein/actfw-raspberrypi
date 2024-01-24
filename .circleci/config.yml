@@ -110,7 +110,7 @@ jobs:
           command: poetry run pytest -v
   test-with-up-to-date-dependencies:
     parameters:
-      python-version:
+      image-tag:
         type: string
     docker:
       - image: <<parameters.image-tag>>
@@ -250,7 +250,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              python-version: *python-versions
+              image-tag: *image-tags
       - build-api-doc:
           context:
             - docker-hub-creds
