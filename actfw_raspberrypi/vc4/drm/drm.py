@@ -465,9 +465,7 @@ class _libdrm(object):
 
         self.lib.drmModeObjectGetProperties.argtypes = [c_int, c_uint32, c_uint32]
         self.lib.drmModeObjectGetProperties.restype = POINTER(DRMModeObjectProperties)
-        self.lib.drmModeFreeObjectProperties.argtypes = [
-            POINTER(DRMModeObjectProperties)
-        ]
+        self.lib.drmModeFreeObjectProperties.argtypes = [POINTER(DRMModeObjectProperties)]
         self.lib.drmModeFreeObjectProperties.restype = None
         self.lib.drmModeObjectSetProperty.argtypes = [
             c_int,
@@ -696,9 +694,7 @@ class Plane(object):
 
     def _get_zpos(self):
         zpos = None
-        props = _drm.get_object_properties(
-            self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE
-        )
+        props = _drm.get_object_properties(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE)
         for i in range(props.count_props):
             prop_id = props.props[i]
             prop = _drm.get_property(self.fd, prop_id)
@@ -712,24 +708,18 @@ class Plane(object):
             return zpos
 
     def _set_color_space(self):
-        props = _drm.get_object_properties(
-            self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE
-        )
+        props = _drm.get_object_properties(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE)
         for i in range(props.count_props):
             prop_id = props.props[i]
             prop = _drm.get_property(self.fd, prop_id)
             if prop.name == b"COLOR_ENCODING":
                 # Use ITU-R BT.601 YCbCr
-                ret = _drm.set_object_property(
-                    self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 0
-                )
+                ret = _drm.set_object_property(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 0)
                 if ret < 0:
                     raise RuntimeError("fail to set color_encoding")
             elif prop.name == b"COLOR_RANGE":
                 # Use YCbCr full range
-                ret = _drm.set_object_property(
-                    self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 1
-                )
+                ret = _drm.set_object_property(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 1)
                 if ret < 0:
                     raise RuntimeError("fail to set color_range")
             _drm.free_property(byref(prop))
