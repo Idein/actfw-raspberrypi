@@ -17,7 +17,7 @@ version = "3.0.0"
 [tool.poetry.dependencies]
 python = "^3.7"
 
-actfw-core = ">=2.4.0"
+actfw-core = ">=2.2.0"
 # We postpone adding picamera because https://github.com/waveform80/picamera/pull/405 is not in the latest picamera (1.13) yet.
 
 [tool.poetry.dev-dependencies]
