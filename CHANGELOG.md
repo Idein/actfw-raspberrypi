@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Drop support for Python 3.6
+
 ## 3.0.0 (2022-11-04)
 
 - Add DRM backend for Display
