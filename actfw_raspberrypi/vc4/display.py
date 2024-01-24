@@ -22,7 +22,9 @@ class Display(object):
 
             self.display = Display(display_num)
         else:
-            raise RuntimeError(f"Error: firmware_type={firmware_type} is not supported.")
+            raise RuntimeError(
+                f"Error: firmware_type={firmware_type} is not supported."
+            )
 
     def get_info(self):
         return self.display.get_info()

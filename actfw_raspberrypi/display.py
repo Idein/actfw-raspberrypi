@@ -77,7 +77,13 @@ class Display:
             int(dst_rect[3] * self.scale),
         )
         layer = self.camera.add_overlay(
-            src_buf, size=src_size, format=src_format, layer=2, alpha=255, fullscreen=False, window=rect
+            src_buf,
+            size=src_size,
+            format=src_format,
+            layer=2,
+            alpha=255,
+            fullscreen=False,
+            window=rect,
         )
         if self.layer is not None:
             self.camera.remove_overlay(self.layer)

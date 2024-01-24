@@ -200,7 +200,9 @@ class Display(object):
         result = _bcm_host.vc_dispmanx_display_get_info(self.handle, byref(self.info))
         if result != 0:
             self.info = None
-            raise RuntimeError("Failed to get display({}) information.".format(self.display_num))
+            raise RuntimeError(
+                "Failed to get display({}) information.".format(self.display_num)
+            )
         return self.info
 
     def open_window(self, dst, size, layer):
@@ -243,7 +245,6 @@ class Window(object):
     """
 
     def __init__(self, display, dst, size, layer):
-
         self.display = display
         self.size = size
         self.layer = layer
@@ -257,20 +258,26 @@ class Window(object):
         self.native_image_handle = [c_uint()] * self.num_of_resources
         for i in range(self.num_of_resources):
             native_image_handle = c_uint()
-            handle = _bcm_host.vc_dispmanx_resource_create(self.format, size[0], size[1], byref(self.native_image_handle[i]))
+            handle = _bcm_host.vc_dispmanx_resource_create(
+                self.format, size[0], size[1], byref(self.native_image_handle[i])
+            )
             if handle == 0:
                 raise RuntimeError("Failed to create window resource.")
             self.resources.append(handle)
 
         src_rect = VC_RECT_T()
-        _bcm_host.vc_dispmanx_rect_set(byref(src_rect), 0, 0, size[0] << 16, size[1] << 16)
+        _bcm_host.vc_dispmanx_rect_set(
+            byref(src_rect), 0, 0, size[0] << 16, size[1] << 16
+        )
         dst_rect = VC_RECT_T()
         _bcm_host.vc_dispmanx_rect_set(byref(dst_rect), dst[0], dst[1], dst[2], dst[3])
 
         update = _bcm_host.vc_dispmanx_update_start(0)
 
         alpha = VC_DISPMANX_ALPHA_T()
-        alpha.flags = DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS
+        alpha.flags = (
+            DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS
+        )
         alpha.opacity = 255
         alpha.mask = 0
 
@@ -334,10 +341,14 @@ class Window(object):
             image (bytes): RGB image with which size is the same as window size
         """
         src_rect = VC_RECT_T()
-        _bcm_host.vc_dispmanx_rect_set(byref(src_rect), 0, 0, self.size[0], self.size[1])
+        _bcm_host.vc_dispmanx_rect_set(
+            byref(src_rect), 0, 0, self.size[0], self.size[1]
+        )
         pitch = (self.size[0] * 3 + 32 - 1) // 32 * 32
         buf = c_char_p(image)
-        result = _bcm_host.vc_dispmanx_resource_write_data(self.resources[0], self.format, c_int(pitch), buf, byref(src_rect))
+        result = _bcm_host.vc_dispmanx_resource_write_data(
+            self.resources[0], self.format, c_int(pitch), buf, byref(src_rect)
+        )
         if result != 0:
             raise RuntimeError("Failed to blit.: {}".format(result))
 
@@ -346,7 +357,9 @@ class Window(object):
         Update window.
         """
         update = _bcm_host.vc_dispmanx_update_start(0)
-        _bcm_host.vc_dispmanx_element_change_source(update, self.element, self.resources[0])
+        _bcm_host.vc_dispmanx_element_change_source(
+            update, self.element, self.resources[0]
+        )
         _bcm_host.vc_dispmanx_update_submit_sync(update)
         self.resources.append(self.resources.pop(0))
 

@@ -118,7 +118,11 @@ class DRMModeObjectProperties(Structure):
     } drmModeObjectProperties, *drmModeObjectPropertiesPtr;
     """
 
-    _fields_ = [("count_props", c_uint32), ("props", POINTER(c_uint32)), ("prop_values", POINTER(c_uint64))]
+    _fields_ = [
+        ("count_props", c_uint32),
+        ("props", POINTER(c_uint32)),
+        ("prop_values", POINTER(c_uint64)),
+    ]
 
 
 class DRMModeResource(Structure):
@@ -461,9 +465,17 @@ class _libdrm(object):
 
         self.lib.drmModeObjectGetProperties.argtypes = [c_int, c_uint32, c_uint32]
         self.lib.drmModeObjectGetProperties.restype = POINTER(DRMModeObjectProperties)
-        self.lib.drmModeFreeObjectProperties.argtypes = [POINTER(DRMModeObjectProperties)]
+        self.lib.drmModeFreeObjectProperties.argtypes = [
+            POINTER(DRMModeObjectProperties)
+        ]
         self.lib.drmModeFreeObjectProperties.restype = None
-        self.lib.drmModeObjectSetProperty.argtypes = [c_int, c_uint32, c_uint32, c_uint32, c_uint64]
+        self.lib.drmModeObjectSetProperty.argtypes = [
+            c_int,
+            c_uint32,
+            c_uint32,
+            c_uint32,
+            c_uint64,
+        ]
         self.lib.drmModeObjectSetProperty.restype = c_int
 
         self.lib.drmIoctl.argtypes = [c_int, c_ulong, c_voidp]
@@ -585,7 +597,17 @@ class Framebuffer(object):
         offsets[1] = 0
         offsets[2] = 0
         offsets[3] = 0
-        res = _drm.add_fb(self.fd, creq.width, creq.height, pixel_format, bo_handles, pitches, offsets, byref(fb), creq.flags)
+        res = _drm.add_fb(
+            self.fd,
+            creq.width,
+            creq.height,
+            pixel_format,
+            bo_handles,
+            pitches,
+            offsets,
+            byref(fb),
+            creq.flags,
+        )
         if res != 0:
             raise RuntimeError("fail to add framebuffer")
         self.fb_id = fb
@@ -598,7 +620,11 @@ class Framebuffer(object):
             raise RuntimeError("fail to map dumb")
 
         self.buffer = mmap.mmap(
-            self.fd, creq.size, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=mreq.offset
+            self.fd,
+            creq.size,
+            flags=mmap.MAP_SHARED,
+            prot=mmap.PROT_READ | mmap.PROT_WRITE,
+            offset=mreq.offset,
         )
 
         self.write(bytearray(creq.size))
@@ -639,7 +665,21 @@ class Plane(object):
         x, y, w, h = dst
         x0, y0, w0, h0 = src
         flags = 0
-        res = _drm.set_plane(self.fd, self.plane_id, crtc_id, fb_id, flags, x, y, w, h, x0 << 16, y0 << 16, w0 << 16, h0 << 16)
+        res = _drm.set_plane(
+            self.fd,
+            self.plane_id,
+            crtc_id,
+            fb_id,
+            flags,
+            x,
+            y,
+            w,
+            h,
+            x0 << 16,
+            y0 << 16,
+            w0 << 16,
+            h0 << 16,
+        )
         if res != 0:
             errno = get_errno()
             err = os.strerror(errno)
@@ -656,7 +696,9 @@ class Plane(object):
 
     def _get_zpos(self):
         zpos = None
-        props = _drm.get_object_properties(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE)
+        props = _drm.get_object_properties(
+            self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE
+        )
         for i in range(props.count_props):
             prop_id = props.props[i]
             prop = _drm.get_property(self.fd, prop_id)
@@ -670,18 +712,24 @@ class Plane(object):
             return zpos
 
     def _set_color_space(self):
-        props = _drm.get_object_properties(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE)
+        props = _drm.get_object_properties(
+            self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE
+        )
         for i in range(props.count_props):
             prop_id = props.props[i]
             prop = _drm.get_property(self.fd, prop_id)
             if prop.name == b"COLOR_ENCODING":
                 # Use ITU-R BT.601 YCbCr
-                ret = _drm.set_object_property(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 0)
+                ret = _drm.set_object_property(
+                    self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 0
+                )
                 if ret < 0:
                     raise RuntimeError("fail to set color_encoding")
             elif prop.name == b"COLOR_RANGE":
                 # Use YCbCr full range
-                ret = _drm.set_object_property(self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 1)
+                ret = _drm.set_object_property(
+                    self.fd, self.plane_id, DRM_MODE_OBJECT_PLANE, prop_id, 1
+                )
                 if ret < 0:
                     raise RuntimeError("fail to set color_range")
             _drm.free_property(byref(prop))

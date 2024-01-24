@@ -10,14 +10,18 @@ class Display(object):
 
     def __init__(self, display_num=0):
         if display_num != 0:
-            raise RuntimeError(f"display_num={display_num} is not supported in bullseye.")
+            raise RuntimeError(
+                f"display_num={display_num} is not supported in bullseye."
+            )
         self.device = Device()
 
     def get_info(self):
         """
         DEPRECATED: Get display information.
         """
-        raise RuntimeError("This API is deprecated. If you need width and height, use Display.size().")
+        raise RuntimeError(
+            "This API is deprecated. If you need width and height, use Display.size()."
+        )
 
     def open_window(self, dst, size, layer):
         """
