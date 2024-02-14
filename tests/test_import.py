@@ -9,5 +9,5 @@ import pytest
         ("actfw_raspberrypi.vc4", "Display"),
     ],
 )
-def test_import_actfw_raspberrypi(from_, import_):
+def test_import_actfw_raspberrypi(from_: str, import_: str) -> None:
     exec(f"""from {from_} import {import_}""")

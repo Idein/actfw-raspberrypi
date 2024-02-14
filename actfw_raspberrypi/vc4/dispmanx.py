@@ -243,7 +243,6 @@ class Window(object):
     """
 
     def __init__(self, display, dst, size, layer):
-
         self.display = display
         self.size = size
         self.layer = layer
