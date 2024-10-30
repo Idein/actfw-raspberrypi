@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- When no display found, do not raise error and run ignoring it
+
 ## 3.1.0 (2024-02-14)
 
 - Drop support for Python 3.6
