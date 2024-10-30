@@ -5,8 +5,8 @@ import sys
 
 from .drm import *
 
-class Display(object):
 
+class Display(object):
     """Display using libdrm"""
 
     def __init__(self, display_num=0):
@@ -65,7 +65,6 @@ class Display(object):
 
 
 class Window(object):
-
     """
     Double buffered window.
     """
@@ -153,7 +152,6 @@ class Window(object):
 
 
 class DummyWindow(object):
-
     """
     DummyWindow will be used when failed to open display (e.g. no display found).
     All methods are dummy and do nothing.

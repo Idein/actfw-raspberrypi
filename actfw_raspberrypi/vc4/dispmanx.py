@@ -179,7 +179,6 @@ class VC_DISPMANX_ALPHA_T(Structure):
 
 
 class Display(object):
-
     """Display using VideoCore4 dispmanx"""
 
     def __init__(self, display_num=0):
@@ -237,7 +236,6 @@ class Display(object):
 
 
 class Window(object):
-
     """
     Double buffered window.
     """
