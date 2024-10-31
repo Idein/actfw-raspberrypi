@@ -1,17 +1,22 @@
 # type: ignore
 # flake8: noqa
 
+import sys
+
 from .drm import *
 
 
 class Display(object):
-
     """Display using libdrm"""
 
     def __init__(self, display_num=0):
         if display_num != 0:
             raise RuntimeError(f"display_num={display_num} is not supported in bullseye.")
-        self.device = Device()
+        try:
+            self.device = Device()
+        except RuntimeError as e:
+            print(f"Failed to open display: {e}", file=sys.stderr)
+            self.device = None
 
     def get_info(self):
         """
@@ -31,19 +36,26 @@ class Display(object):
         Returns:
             :class:`~actfw_raspberrypi.vc4.drm.display.Window`: window
         """
+        if self.device is None:
+            return DummyWindow(self.device, dst, size, layer)
         return Window(self.device, dst, size, layer)
 
     def size(self):
         """
         Get display size.
+        if display is not found, return (-1, -1)
 
         Returns:
             ((int, int)): (width, height)
         """
+        if self.device is None:
+            return (-1, -1)
+
         return (self.device.width, self.device.height)
 
     def close(self):
-        self.device.close()
+        if self.device is not None:
+            self.device.close()
 
     def __enter__(self):
         return self
@@ -53,7 +65,6 @@ class Display(object):
 
 
 class Window(object):
-
     """
     Double buffered window.
     """
@@ -137,4 +148,39 @@ class Window(object):
         return self
 
     def __exit__(self, ex_type, ex_value, trace):
+        self.close()
+
+
+class DummyWindow(object):
+    """
+    DummyWindow will be used when failed to open display (e.g. no display found).
+    All methods are dummy and do nothing.
+    Because if display is not found, we want it to keep running without error.
+    """
+
+    def __init__(self, _device, _dst, _size, _layer):
+        pass
+
+    def clear(self, _rgb=(0, 0, 0)):
+        pass
+
+    def set_layer(self, _layer):
+        pass
+
+    def swap_layer(self, _window):
+        pass
+
+    def blit(self, _image):
+        pass
+
+    def update(self):
+        pass
+
+    def close(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _ex_type, _ex_value, _trace):
         self.close()
