@@ -155,6 +155,7 @@ class DummyWindow(object):
     """
     DummyWindow will be used when failed to open display (e.g. no display found).
     All methods are dummy and do nothing.
+    Because if display is not found, we want it to keep running without error.
     """
 
     def __init__(self, _device, _dst, _size, _layer):
