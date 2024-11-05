@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.2.0 (2024-11-05)
+
 - When no display found, do not raise error and run ignoring it
 
 ## 3.1.0 (2024-02-14)
