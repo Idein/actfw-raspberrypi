@@ -355,7 +355,7 @@ class _DRMModeMapDumb(Structure):
     };
     """
 
-    _fields_ = [("handle", c_uint32), ("pad", c_uint32), ("offset", c_uint32)]
+    _fields_ = [("handle", c_uint32), ("pad", c_uint32), ("offset", c_uint64)]
 
 
 class _DRMModeDestroyDumb(Structure):
