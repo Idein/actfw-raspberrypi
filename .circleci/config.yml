@@ -3,7 +3,6 @@ version: 2.1
 references:
   image-tags: &image-tags
     - "python:3.7-buster"
-    - "python:3.8-buster"
     - "python:3.9-bullseye"
     - "python:3.10-bullseye"
     - "python:3.11-bullseye"
