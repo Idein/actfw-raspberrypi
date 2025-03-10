@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 3.3.0 (2025-03-10)
+
+- Support DRM Display in 64bit OS
+
 ## 3.2.0 (2024-11-05)
 
 - When no display found, do not raise error and run ignoring it
