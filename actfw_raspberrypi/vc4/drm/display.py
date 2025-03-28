@@ -24,7 +24,7 @@ class Display(object):
         """
         raise RuntimeError("This API is deprecated. If you need width and height, use Display.size().")
 
-    def open_window(self, dst, size, layer, fmt=None):
+    def open_window(self, dst, size, layer, bpp=24, fmt=None):
         """
         Open new window.
 
@@ -38,7 +38,7 @@ class Display(object):
         """
         if self.device is None:
             return DummyWindow(self.device, dst, size, layer)
-        return Window(self.device, dst, size, layer, fmt=None)
+        return Window(self.device, dst, size, layer, bpp=24, fmt=None)
 
     def size(self):
         """
@@ -69,15 +69,15 @@ class Window(object):
     Double buffered window.
     """
 
-    def __init__(self, device, dst, size, layer, fmt=None):
+    def __init__(self, device, dst, size, layer, bpp=24, fmt=None):
         self.device = device
         self.size = size
         width, height = size
         self.crtc_id = self.device.crtc.crtc_id
         self.src = (0, 0, width, height)
         self.dst = dst
-        self.front_fb = self.device.create_fb(width, height, bpp=24, fmt=fmt)
-        self.back_fb = self.device.create_fb(width, height, bpp=24, fmt=fmt)
+        self.front_fb = self.device.create_fb(width, height, bpp=bpp, fmt=fmt)
+        self.back_fb = self.device.create_fb(width, height, bpp=bpp, fmt=fmt)
 
         self.plane = self.device.pick_plane(layer)
         self.plane.set(self.crtc_id, self.front_fb.fb_id, self.dst, self.src)
