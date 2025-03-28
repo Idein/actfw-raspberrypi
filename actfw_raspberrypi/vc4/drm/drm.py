@@ -30,6 +30,20 @@ DRM_FORMAT_RGBA8888 = 0x34324152
 DRM_FORMAT_BGRA8888 = 0x34324142
 DRM_FORMAT_ARGB8888 = 0x34325241
 DRM_FORMAT_ABGR8888 = 0x34324241
+DRM_FORMAT_YUYV = 0x56595559
+DRM_FORMAT_YVYU = 0x55595659
+DRM_FORMAT_UYVY = 0x59565955
+DRM_FORMAT_VYUY = 0x59555956
+DRM_FORMAT_YUV410 = 0x39565559
+DRM_FORMAT_YVU410 = 0x39555659
+DRM_FORMAT_YUV411 = 0x31315559
+DRM_FORMAT_YVU411 = 0x31315659
+DRM_FORMAT_YUV420 = 0x32315559
+DRM_FORMAT_YVU420 = 0x32315659
+DRM_FORMAT_YUV422 = 0x36315559
+DRM_FORMAT_YVU422 = 0x36315659
+DRM_FORMAT_YUV444 = 0x34325559
+DRM_FORMAT_YVU444 = 0x34325659
 
 DRM_PROP_NAME_LEN = 32
 DRM_DISPLAY_MODE_LEN = 32
@@ -561,7 +575,7 @@ _drm = _libdrm()
 
 
 class Framebuffer(object):
-    def __init__(self, fd, width, height, bpp=24):
+    def __init__(self, fd, width, height, bpp=24, fmt=None):
         self.fd = fd
 
         creq = _DRMModeCreateDumb()
@@ -575,7 +589,9 @@ class Framebuffer(object):
             raise RuntimeError("fail to create dumb")
 
         fb = c_uint32()
-        if creq.bpp == 24:
+        if fmt is not None:
+            pixel_format = fmt
+        elif creq.bpp == 24:
             pixel_format = DRM_FORMAT_BGR888
         else:
             raise RuntimeError(f"not support bpp: {creq.bpp}")
@@ -761,8 +777,8 @@ class Device(object):
         plane.set(0, 0, (0, 0, 0, 0), (0, 0, 0, 0))
         self.planes.append(plane)
 
-    def create_fb(self, width, height, bpp=24):
-        return Framebuffer(self.fd, width, height, bpp)
+    def create_fb(self, width, height, bpp=24, fmt=None):
+        return Framebuffer(self.fd, width, height, bpp, fmt)
 
     def _find_connector(self, res: DRMModeResource) -> DRMModeConnector:
         for i in range(res.count_connectors):
