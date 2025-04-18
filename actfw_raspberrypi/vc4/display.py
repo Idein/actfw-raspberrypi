@@ -13,7 +13,7 @@ class Display(object):
         except EnvironmentVariableNotSet:
             firmware_type = None
 
-        if firmware_type == "raspberrypi-bullseye":
+        if firmware_type == "raspberrypi-bullseye" or firmware_type == "raspberrypi-bookworm":
             from actfw_raspberrypi.vc4.drm import Display
 
             self.display = Display(display_num)

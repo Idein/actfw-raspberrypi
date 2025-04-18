@@ -36,11 +36,13 @@ class Display:
 
         if firmware_type == "raspberrypi-bullseye":
             raise RuntimeError("Display do not work in bullseye.")
-        else:
-            warnings.warn(
-                "actfw_raspberrypi.Display do not work in bullseye and actfw_raspberrypi.Display will be deprecated soon.",
-                PendingDeprecationWarning,
-            )
+        if firmware_type == "raspberrypi-bookworm":
+            raise RuntimeError("Display do not work in bookworm.")
+
+        warnings.warn(
+            "actfw_raspberrypi.Display do not work in bullseye/bookworm and actfw_raspberrypi.Display will be deprecated soon.",
+            PendingDeprecationWarning,
+        )
 
         self.size = size
         self.preferred_size = EDID().prefferd_mode()
