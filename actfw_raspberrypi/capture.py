@@ -34,11 +34,13 @@ class PiCameraCapture(Producer[Frame[bytes]]):
 
         if firmware_type == "raspberrypi-bullseye":
             raise RuntimeError("PiCameraCapture do not work in bullseye.")
-        else:
-            warnings.warn(
-                "PiCameraCapture do not work in bullseye and PiCameraCapture will be deprecated soon.",
-                PendingDeprecationWarning,
-            )
+        if firmware_type == "raspberrypi-bookworm":
+            raise RuntimeError("PiCameraCapture do not work in bookworm.")
+
+        warnings.warn(
+            "PiCameraCapture do not work in bullseye/bookworm and PiCameraCapture will be deprecated soon.",
+            PendingDeprecationWarning,
+        )
 
         super().__init__()
         self.camera = camera
