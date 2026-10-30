@@ -77,8 +77,11 @@ actfw-raspberrypi provides:
 
 ### Installation of dev requirements
 
+Update the operating system CA store before installing development tools. Use uv 0.13.6 or later and certifi 2026.10.19 or later in existing virtual environments as well. CI checks both the OS store and the project certifi bundle using public certificates.
+
 ```console
-pip3 install poetry
+curl -LsSf https://astral.sh/uv/0.13.6/install.sh | sh
+uv tool install --with 'certifi>=2026.10.19' poetry==1.8.5
 poetry install
 ```
 
