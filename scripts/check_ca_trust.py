@@ -1,6 +1,7 @@
 """Check the OS and optional certifi stores using public certificate fixtures."""
 import argparse
 import hashlib
+import importlib
 import re
 import ssl
 import subprocess
@@ -30,13 +31,22 @@ def check_bundle(label: str, path: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--certifi", action="store_true", help="also inspect this environment's certifi")
+    parser.add_argument(
+        "--certifi", action="store_true", help="also inspect this environment's certifi and pip's vendored certifi"
+    )
     args = parser.parse_args()
     stores: List[Tuple[str, Optional[str]]] = [("OS", check_bundle("OS", "/etc/ssl/certs/ca-certificates.crt"))]
     if args.certifi:
         import certifi
 
         stores.append(("certifi", check_bundle("certifi", certifi.where())))
+        # pip trusts its vendored certifi even when truststore is enabled.
+        try:
+            pip_certifi = importlib.import_module("pip._vendor.certifi")
+        except ImportError:
+            pass
+        else:
+            stores.append(("pip certifi", check_bundle("pip certifi", pip_certifi.where())))
     fixtures = Path(__file__).with_name("certificates")
     certificates = sorted(fixtures.glob("*.pem"))
     if len(certificates) != 9:

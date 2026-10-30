@@ -77,7 +77,9 @@ actfw-raspberrypi provides:
 
 ### Installation of dev requirements
 
-Update the operating system CA store before installing development tools. Use uv 0.13.6 or later and certifi 2026.10.19 or later in existing virtual environments as well. CI checks both the OS store and the project certifi bundle using public certificates.
+Update the operating system CA store before installing development tools. Use uv 0.13.6 or later and certifi 2026.10.19 or later in existing virtual environments as well. CI checks the OS store, the project certifi bundle and, if pip is installed, pip's vendored certifi using public certificates.
+
+`poetry.toml` keeps pip out of the project virtual environment, because the pip seeded by Poetry 1.8 vendors an older CA bundle. If an existing environment still has pip, recreate it with `poetry env remove --all` and `poetry install`.
 
 ```console
 curl -LsSf https://astral.sh/uv/0.13.6/install.sh | sh
