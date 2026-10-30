@@ -1,0 +1,4 @@
+[virtualenvs.options]
+# Poetry installs packages itself. Leave pip out because the pip seeded by
+# virtualenv < 21 (required by Poetry 1.8) vendors an older CA bundle.
+no-pip = true

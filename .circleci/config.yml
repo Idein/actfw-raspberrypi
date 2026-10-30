@@ -31,7 +31,7 @@ commands:
     steps:
       # See: https://circleci.com/docs/2.0/language-python/#cache-dependencies
       - restore_cache:
-          key: &cache-key-poetry cache-ca-v1-poetry-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLECI_CACHE_VERSION }}-{{ checksum "poetry.lock" }}
+          key: &cache-key-poetry cache-ca-v1-poetry-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLECI_CACHE_VERSION }}-{{ checksum "poetry.toml" }}-{{ checksum "poetry.lock" }}
       - run:
           name: poetry install
           command: |
