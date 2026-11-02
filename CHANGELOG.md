@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 3.3.2 (2026-11-02)
+
+- Harden CA trust in development and CI against compromised eMudhra certificate chains, with checks for the OS, certifi and pip's vendored CA stores.
+- Keep pip out of Poetry virtual environments to avoid its outdated CA bundle.
+
 ## 3.3.0 (2025-03-10)
 
 - Support DRM Display in 64bit OS
