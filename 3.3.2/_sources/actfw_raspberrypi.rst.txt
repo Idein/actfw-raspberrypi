@@ -1,0 +1,45 @@
+actfw\_raspberrypi package
+==========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   actfw_raspberrypi.vc4
+
+Submodules
+----------
+
+actfw\_raspberrypi.capture module
+---------------------------------
+
+.. automodule:: actfw_raspberrypi.capture
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+actfw\_raspberrypi.display module
+---------------------------------
+
+.. automodule:: actfw_raspberrypi.display
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+actfw\_raspberrypi.edid module
+------------------------------
+
+.. automodule:: actfw_raspberrypi.edid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: actfw_raspberrypi
+   :members:
+   :undoc-members:
+   :show-inheritance:
