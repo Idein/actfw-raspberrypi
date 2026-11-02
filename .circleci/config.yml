@@ -191,7 +191,7 @@ jobs:
             test -f /tmp/workspace/html/index.html
             rm -rf -- "$TAG" latest
             mkdir "$TAG"
-            cp -a /tmp/workspace/html/. "$TAG/"
+            cp -a /tmp/workspace/html/* "$TAG/"
             ln -s "$TAG" latest
       - prepare-github-writable-user
       - run:
